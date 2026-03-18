@@ -1,0 +1,102 @@
+﻿Analyzing cropsecure_app...                                     
+
+warning - Unused import: 'package:flutter/material.dart' - lib\core\theme\app_spacing.dart:1:8 - unused_import
+  error - The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.  - lib\core\theme\app_theme.dart:82:16 - argument_type_not_assignable
+  error - The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.  - lib\core\theme\app_theme.dart:165:16 - argument_type_not_assignable
+  error - The function 'StateNotifierProvider' isn't defined - lib\providers\auth_provider.dart:7:22 - undefined_function
+  error - Classes can only extend other classes - lib\providers\auth_provider.dart:11:28 - extends_non_class
+  error - Too many positional arguments: 0 expected, but 1 found - lib\providers\auth_provider.dart:12:26 - extra_positional_arguments
+  error - Undefined name 'state' - lib\providers\auth_provider.dart:16:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\auth_provider.dart:22:7 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\auth_provider.dart:24:7 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\auth_provider.dart:30:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\auth_provider.dart:36:5 - undefined_identifier
+  error - The function 'StateNotifierProvider' isn't defined - lib\providers\cart_provider.dart:31:22 - undefined_function
+  error - Classes can only extend other classes - lib\providers\cart_provider.dart:35:28 - extends_non_class
+  error - Too many positional arguments: 0 expected, but 1 found - lib\providers\cart_provider.dart:36:26 - extra_positional_arguments
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:40:19 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:42:47 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:46:7 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:48:7 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:48:19 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:58:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:58:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:68:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:68:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\cart_provider.dart:72:23 - undefined_identifier
+  error - The function 'StateNotifierProvider' isn't defined - lib\providers\crop_provider.dart:21:22 - undefined_function
+  error - Classes can only extend other classes - lib\providers\crop_provider.dart:25:28 - extends_non_class
+  error - Too many positional arguments: 0 expected, but 1 found - lib\providers\crop_provider.dart:26:26 - extra_positional_arguments
+  error - Undefined name 'state' - lib\providers\crop_provider.dart:30:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\crop_provider.dart:30:17 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\crop_provider.dart:35:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\crop_provider.dart:35:13 - undefined_identifier
+  error - The function 'StateProvider' isn't defined - lib\providers\crop_provider.dart:40:30 - undefined_function
+  error - The function 'StateNotifierProvider' isn't defined - lib\providers\language_provider.dart:5:26 - undefined_function
+  error - Classes can only extend other classes - lib\providers\language_provider.dart:9:32 - extends_non_class
+  error - Too many positional arguments: 0 expected, but 1 found - lib\providers\language_provider.dart:13:30 - extra_positional_arguments
+  error - Undefined name 'state' - lib\providers\language_provider.dart:21:7 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\language_provider.dart:26:5 - undefined_identifier
+  error - The function 'StateNotifierProvider' isn't defined - lib\providers\scan_provider.dart:48:22 - undefined_function
+  error - Classes can only extend other classes - lib\providers\scan_provider.dart:52:28 - extends_non_class
+  error - Too many positional arguments: 0 expected, but 1 found - lib\providers\scan_provider.dart:53:26 - extra_positional_arguments
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:57:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:57:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:60:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:60:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:63:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:63:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:67:5 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:67:13 - undefined_identifier
+  error - Undefined name 'state' - lib\providers\scan_provider.dart:80:5 - undefined_identifier
+  error - Target of URI doesn't exist: '../screens/splash/splash_screen.dart' - lib\routes\app_router.dart:9:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/language/language_selection_screen.dart' - lib\routes\app_router.dart:10:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/auth/login_screen.dart' - lib\routes\app_router.dart:11:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/auth/signup_screen.dart' - lib\routes\app_router.dart:12:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/auth/otp_screen.dart' - lib\routes\app_router.dart:13:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/dashboard/dashboard_screen.dart' - lib\routes\app_router.dart:14:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/scan/scan_screen.dart' - lib\routes\app_router.dart:15:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/scan/analyzing_screen.dart' - lib\routes\app_router.dart:16:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/scan/diagnosis_result_screen.dart' - lib\routes\app_router.dart:17:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/treatment/treatment_advisory_screen.dart' - lib\routes\app_router.dart:18:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/treatment/disease_detail_screen.dart' - lib\routes\app_router.dart:19:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/treatment/chemical_treatment_screen.dart' - lib\routes\app_router.dart:20:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/treatment/organic_treatment_screen.dart' - lib\routes\app_router.dart:21:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/treatment/pests_and_diseases_screen.dart' - lib\routes\app_router.dart:22:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/marketplace/marketplace_screen.dart' - lib\routes\app_router.dart:23:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/marketplace/product_detail_screen.dart' - lib\routes\app_router.dart:24:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/marketplace/cart_screen.dart' - lib\routes\app_router.dart:25:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/profile/profile_screen.dart' - lib\routes\app_router.dart:26:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/profile/farm_history_screen.dart' - lib\routes\app_router.dart:27:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/profile/purchase_inputs_screen.dart' - lib\routes\app_router.dart:28:8 - uri_does_not_exist
+warning - The value of the local variable 'authState' isn't used - lib\routes\app_router.dart:35:9 - unused_local_variable
+  error - The name 'SplashScreen' isn't a class - lib\routes\app_router.dart:44:44 - creation_with_non_type
+  error - The name 'LanguageSelectionScreen' isn't a class - lib\routes\app_router.dart:49:44 - creation_with_non_type
+  error - The name 'LoginScreen' isn't a class - lib\routes\app_router.dart:54:44 - creation_with_non_type
+  error - The name 'SignUpScreen' isn't a class - lib\routes\app_router.dart:59:44 - creation_with_non_type
+  error - The name 'OTPScreen' isn't a class - lib\routes\app_router.dart:64:44 - creation_with_non_type
+  error - The name 'ScanScreen' isn't a class - lib\routes\app_router.dart:71:45 - creation_with_non_type
+  error - The name 'AnalyzingScreen' isn't a class - lib\routes\app_router.dart:76:45 - creation_with_non_type
+  error - The name 'DiagnosisResultScreen' isn't a class - lib\routes\app_router.dart:81:45 - creation_with_non_type
+  error - The name 'DashboardScreen' isn't a class - lib\routes\app_router.dart:94:48 - creation_with_non_type
+  error - The name 'TreatmentAdvisoryScreen' isn't a class - lib\routes\app_router.dart:100:48 - creation_with_non_type
+  error - The name 'DiseaseDetailScreen' isn't a class - lib\routes\app_router.dart:104:52 - creation_with_non_type
+  error - The name 'ChemicalTreatmentScreen' isn't a class - lib\routes\app_router.dart:108:52 - creation_with_non_type
+  error - The name 'OrganicTreatmentScreen' isn't a class - lib\routes\app_router.dart:112:52 - creation_with_non_type
+  error - The name 'PestsAndDiseasesScreen' isn't a class - lib\routes\app_router.dart:116:52 - creation_with_non_type
+  error - The name 'MarketplaceScreen' isn't a class - lib\routes\app_router.dart:124:48 - creation_with_non_type
+  error - The name 'ProductDetailScreen' isn't a class - lib\routes\app_router.dart:128:52 - creation_with_non_type
+  error - The name 'CartScreen' isn't a class - lib\routes\app_router.dart:132:52 - creation_with_non_type
+  error - The name 'ProfileScreen' isn't a class - lib\routes\app_router.dart:140:48 - creation_with_non_type
+  error - The name 'FarmHistoryScreen' isn't a class - lib\routes\app_router.dart:144:52 - creation_with_non_type
+  error - The name 'PurchaseInputsScreen' isn't a class - lib\routes\app_router.dart:148:52 - creation_with_non_type
+  error - The function 'StateProvider' isn't defined - lib\widgets\app_shell.dart:8:26 - undefined_function
+warning - Unused import: '../core/theme/app_text_styles.dart' - lib\widgets\bottom_navbar.dart:3:8 - unused_import
+   info - Unnecessary use of multiple underscores - lib\widgets\common\empty_state_widget.dart:34:31 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\widgets\common\empty_state_widget.dart:34:35 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\common\risk_alert_banner.dart:28:36 - deprecated_member_use
+warning - Unused import: '../../core/constants/app_constants.dart' - lib\widgets\common\scan_overlay.dart:2:8 - unused_import
+warning - Unused import: '../../core/theme/app_text_styles.dart' - lib\widgets\common\scan_overlay.dart:6:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\common\scan_overlay.dart:44:39 - deprecated_member_use
+  error - The name 'MyApp' isn't a class - test\widget_test.dart:16:35 - creation_with_non_type
+

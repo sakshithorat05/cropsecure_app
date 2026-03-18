@@ -1,0 +1,13 @@
+import 'package:flutter/material.dart';
+
+class ${entry.value} extends StatelessWidget {
+  const ${entry.value}({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('${entry.value}')),
+      body: const Center(child: Text('${entry.value} Placeholder')),
+    );
+  }
+}

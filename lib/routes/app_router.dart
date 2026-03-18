@@ -1,0 +1,165 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../widgets/app_shell.dart';
+import '../providers/auth_provider.dart';
+
+// Import Screens
+import '../screens/splash/splash_screen.dart';
+import '../screens/language/language_selection_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/signup_screen.dart';
+import '../screens/auth/otp_screen.dart';
+import '../screens/dashboard/dashboard_screen.dart';
+import '../screens/scan/scan_screen.dart';
+import '../screens/scan/analyzing_screen.dart';
+import '../screens/scan/diagnosis_result_screen.dart';
+import '../screens/treatment/treatment_advisory_screen.dart';
+import '../screens/treatment/disease_detail_screen.dart';
+import '../screens/treatment/chemical_treatment_screen.dart';
+import '../screens/treatment/organic_treatment_screen.dart';
+import '../screens/treatment/pests_and_diseases_screen.dart';
+import '../screens/marketplace/marketplace_screen.dart';
+import '../screens/marketplace/product_detail_screen.dart';
+import '../screens/marketplace/cart_screen.dart';
+import '../screens/profile/profile_screen.dart';
+import '../screens/profile/farm_history_screen.dart';
+import '../screens/profile/purchase_inputs_screen.dart';
+
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+
+/// Provides the GoRouter instance
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: '/splash',
+    redirect: (context, state) {
+      final isAuth = authState == AuthState.authenticated;
+      final isGoingToAuth = state.matchedLocation.startsWith('/auth');
+      
+      if (!isAuth && !isGoingToAuth && state.matchedLocation != '/splash' && state.matchedLocation != '/language') {
+        return '/auth/login';
+      }
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: '/splash',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/language',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LanguageSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/auth/login',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/auth/signup',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: '/auth/otp',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const OTPScreen(),
+      ),
+      
+      // Full screen scan routes outside of the bottom sheet navigation
+      GoRoute(
+         path: '/home/scan',
+         parentNavigatorKey: _rootNavigatorKey,
+         builder: (context, state) => const ScanScreen(),
+      ),
+      GoRoute(
+         path: '/home/scan/analyzing',
+         parentNavigatorKey: _rootNavigatorKey,
+         builder: (context, state) => const AnalyzingScreen(),
+      ),
+      GoRoute(
+         path: '/home/scan/result',
+         parentNavigatorKey: _rootNavigatorKey,
+         builder: (context, state) => const DiagnosisResultScreen(),
+      ),
+
+      // App Shell with Bottom Navigation
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) {
+          return AppShell(child: child);
+        },
+        routes: [
+          // 0. Dashboard
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const DashboardScreen(),
+          ),
+          
+          // 1. Treatment
+          GoRoute(
+            path: '/treatment',
+            builder: (context, state) => const TreatmentAdvisoryScreen(),
+            routes: [
+              GoRoute(
+                path: 'disease/:id',
+                builder: (context, state) => const DiseaseDetailScreen(),
+              ),
+              GoRoute(
+                path: 'chemical/:id',
+                builder: (context, state) => const ChemicalTreatmentScreen(),
+              ),
+              GoRoute(
+                path: 'organic/:id',
+                builder: (context, state) => const OrganicTreatmentScreen(),
+              ),
+              GoRoute(
+                path: 'pests',
+                builder: (context, state) => const PestsAndDiseasesScreen(),
+              ),
+            ],
+          ),
+          
+          // 2. Marketplace
+          GoRoute(
+            path: '/market',
+            builder: (context, state) => const MarketplaceScreen(),
+            routes: [
+              GoRoute(
+                path: 'product/:id',
+                builder: (context, state) => const ProductDetailScreen(),
+              ),
+              GoRoute(
+                path: 'cart',
+                builder: (context, state) => const CartScreen(),
+              ),
+            ],
+          ),
+          
+          // 3. Profile
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileScreen(),
+            routes: [
+              GoRoute(
+                path: 'farm-history',
+                builder: (context, state) => const FarmHistoryScreen(),
+              ),
+              GoRoute(
+                path: 'purchase-inputs',
+                builder: (context, state) => const PurchaseInputsScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+});

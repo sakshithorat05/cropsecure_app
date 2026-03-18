@@ -1,0 +1,11 @@
+﻿Analyzing cropsecure_app...                                     
+
+warning - The value of the local variable 'authState' isn't used - lib\routes\app_router.dart:35:9 - unused_local_variable
+warning - Unused import: '../core/theme/app_text_styles.dart' - lib\widgets\bottom_navbar.dart:3:8 - unused_import
+   info - Unnecessary use of multiple underscores - lib\widgets\common\empty_state_widget.dart:34:31 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\widgets\common\empty_state_widget.dart:34:35 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\common\risk_alert_banner.dart:28:36 - deprecated_member_use
+warning - Unused import: '../../core/constants/app_constants.dart' - lib\widgets\common\scan_overlay.dart:2:8 - unused_import
+warning - Unused import: '../../core/theme/app_text_styles.dart' - lib\widgets\common\scan_overlay.dart:6:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\common\scan_overlay.dart:44:39 - deprecated_member_use
+
