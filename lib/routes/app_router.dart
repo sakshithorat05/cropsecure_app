@@ -99,7 +99,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'scan/preview',
-                builder: (context, state) => const ScanPreviewScreen(),
+                builder: (context, state) => ScanPreviewScreen(
+                  imagePath: state.extra as String?,
+                ),
               ),
               GoRoute(
                 path: 'scan/analyzing',
