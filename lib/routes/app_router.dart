@@ -174,7 +174,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'product/:id',
-                builder: (context, state) => const ProductDetailScreen(),
+                builder: (context, state) => ProductDetailScreen(
+                  productId: state.pathParameters['id'],
+                ),
               ),
               GoRoute(
                 path: 'cart',

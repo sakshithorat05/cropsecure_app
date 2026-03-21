@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../screens/treatment/models/disease_details_model.dart';
 import '../../screens/profile/models/farm_history_model.dart';
 import '../../screens/marketplace/models/product_model.dart';
+import '../../screens/profile/models/purchase_model.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,6 +12,7 @@ class DatabaseService {
   CollectionReference get farmHistoryCollection => _firestore.collection('farm_history');
   CollectionReference get productsCollection => _firestore.collection('products');
   CollectionReference get diseasesCollection => _firestore.collection('pests_and_diseases');
+  CollectionReference get purchasesCollection => _firestore.collection('purchases');
 
   // --- User Operations ---
 
@@ -113,6 +115,43 @@ class DatabaseService {
         'diseasesDetected': '0',
         'recoveryRate': '0%',
       };
+    }
+  }
+
+  // --- Purchase Operations ---
+
+  /// Fetches product purchases for a specific user
+  Future<List<PurchaseModel>> getUserPurchases(String uid) async {
+    try {
+      QuerySnapshot querySnapshot = await purchasesCollection
+          .where('uid', isEqualTo: uid)
+          .orderBy('purchaseDate', descending: true)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => PurchaseModel.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get purchases: $e');
+    }
+  }
+
+  /// Records a product purchase
+  Future<void> purchaseProduct(String uid, PurchaseModel purchase) async {
+    try {
+      final purchaseData = {
+        'uid': uid,
+        'productName': purchase.productName,
+        'productCategory': purchase.productCategory,
+        'price': purchase.price,
+        'quantity': purchase.quantity,
+        'purchaseDate': FieldValue.serverTimestamp(),
+        'status': 'Completed',
+        'imageUrl': purchase.imageUrl,
+      };
+      await purchasesCollection.add(purchaseData);
+    } catch (e) {
+      throw Exception('Failed to record purchase: $e');
     }
   }
 }

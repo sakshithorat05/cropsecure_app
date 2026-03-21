@@ -29,20 +29,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: FutureBuilder<Map<String, dynamic>?>(
-          future: _profileFuture,
-          builder: (context, snapshot) {
-            final userData = snapshot.data;
-            final String userName = userData?['name'] ?? 'Farmer';
-            final String userPhone = userData?['phone'] ?? '+91';
+      backgroundColor: AppColors.backgroundLight, // Ensure light background even in dark mode
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: _profileFuture,
+        builder: (context, snapshot) {
+          final userData = snapshot.data;
+          final String userName = userData?['name'] ?? 'Farmer';
+          final String userPhone = userData?['phone'] ?? '+91';
 
-            return Column(
-              children: [
-                // Top green header
-                Container(
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // 1. Top Green Header
+              SliverToBoxAdapter(
+                child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+                  padding: const EdgeInsets.only(
+                    top: 60, // Custom safe area padding
+                    left: AppSpacing.md,
+                    right: AppSpacing.md,
+                    bottom: AppSpacing.xl,
+                  ),
                   decoration: const BoxDecoration(
                     color: AppColors.primaryGreen,
                     borderRadius: BorderRadius.vertical(
@@ -52,117 +59,198 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(userName, style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(userPhone, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white)),
-                    ],
-                  ),
-                ),
-
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Farm details card
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusLg)),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Farm Details', style: AppTextStyles.headingMedium),
-                      const SizedBox(height: AppSpacing.md),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: AppSpacing.md,
-                        crossAxisSpacing: AppSpacing.md,
-                        children: [
-                          _buildDetailItem('Variety', 'Wheat'),
-                          _buildDetailItem('Location', 'Pune, MH'),
-                          _buildDetailItem('Land Size', '2.5 acres'),
-                          _buildDetailItem('Irrigation', 'Drip'),
-                        ],
+                      Text(
+                        userName, 
+                        style: AppTextStyles.displayMedium.copyWith(
+                          color: AppColors.white,
+                          fontSize: 28,
+                        )
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        userPhone, 
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.white.withOpacity(0.9),
+                        )
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: AppSpacing.lg),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
 
-            // Settings list
-            Expanded(
-              child: ListView(
+              // 2. Farm Details Card
+              SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                children: [
-                  const SizedBox(height: AppSpacing.sm),
-                  ListTile(
-                    title: Text('Language', style: AppTextStyles.bodyMedium),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [AppColors.softShadow],
+                    ),
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Farm Details', 
+                          style: AppTextStyles.headingMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          )
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: AppSpacing.md,
+                          crossAxisSpacing: AppSpacing.md,
+                          childAspectRatio: 2.5,
+                          children: [
+                            _buildDetailItem('Variety', 'Jasmine Sambangi'),
+                            _buildDetailItem('Location', 'Theni, TN'),
+                            _buildDetailItem('Land Size', '1.2 Hectares'),
+                            _buildDetailItem('Irrigation', 'Drip / Well'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  ListTile(
-                    title: Text('Notifications', style: AppTextStyles.bodyMedium),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    title: Text('Offline Advisory', style: AppTextStyles.bodyMedium),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    title: Text('Privacy & Consent', style: AppTextStyles.bodyMedium),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-
-            // Logout button
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: SizedBox(
-                height: 52,
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusMd)),
-                  ),
-                  onPressed: () {
-                    ref.read(authProvider.notifier).logout();
-                    context.go('/auth/login');
-                  },
-                  child: Text('Logout', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
                 ),
               ),
-            ),
-              ],
-            );
-          }
-        ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+
+              // 3. Settings Section
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [AppColors.softShadow],
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSettingTile(
+                          icon: Icons.history,
+                          title: 'Farm History',
+                          onTap: () => context.push('/profile/farm-history'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.shopping_bag_outlined,
+                          title: 'Purchase History',
+                          onTap: () => context.push('/profile/purchase-inputs'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.language,
+                          title: 'Language',
+                          onTap: () {},
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.notifications_none,
+                          title: 'Notifications',
+                          onTap: () {},
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.security,
+                          title: 'Privacy & Consent',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+
+              // 4. Logout Button
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                sliver: SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 54,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        ref.read(authProvider.notifier).logout();
+                        context.go('/auth/login');
+                      },
+                      child: Text(
+                        'Logout', 
+                        style: AppTextStyles.displayMedium.copyWith(
+                          color: AppColors.white,
+                          fontSize: 18,
+                        )
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom Spacer for Bottom Bar
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          );
+        }
       ),
     );
   }
-}
 
+  Widget _buildDivider() => Divider(height: 1, indent: 50, color: AppColors.divider.withOpacity(0.5));
 
-Widget _buildDetailItem(String title, String value) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(title, style: AppTextStyles.labelMedium),
-      const SizedBox(height: AppSpacing.xs),
-      Text(value, style: AppTextStyles.bodyMedium),
-    ],
-  );
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primaryGreen, size: 22),
+      title: Text(title, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 4),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildDetailItem(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title, 
+          style: AppTextStyles.labelMedium.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 11,
+          )
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value, 
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          )
+        ),
+      ],
+    );
+  }
 }
 
 
