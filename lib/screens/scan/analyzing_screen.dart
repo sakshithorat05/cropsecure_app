@@ -1,13 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
 
-class AnalyzingScreen extends StatelessWidget {
+class AnalyzingScreen extends StatefulWidget {
   const AnalyzingScreen({super.key});
+
+  @override
+  State<AnalyzingScreen> createState() => _AnalyzingScreenState();
+}
+
+class _AnalyzingScreenState extends State<AnalyzingScreen> {
+  int _currentStep = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAnalysisSimulation();
+  }
+
+  void _startAnalysisSimulation() async {
+    // Simulate steps processing
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) setState(() => _currentStep = 1);
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) setState(() => _currentStep = 2);
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) setState(() => _currentStep = 3);
+    
+    // Navigate to results
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
+      context.pushReplacement('/home/scan/result');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AnalyzingScreen')),
-      body: const Center(child: Text('AnalyzingScreen Placeholder')),
+      backgroundColor: AppColors.backgroundLight,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              decoration: const BoxDecoration(
+                color: AppColors.primaryGreen,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Text('Scan Affected Area', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
+            ),
+            
+            const Spacer(),
+            
+            Text(
+              'Analyzing plant health...',
+              style: AppTextStyles.headingLarge,
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: 40),
+            
+            // Custom Spinner Simulation
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentLime),
+              strokeWidth: 6,
+            ),
+            
+            const SizedBox(height: 60),
+            
+            // Steps
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                children: [
+                  _buildStep('Checking disease patterns', _currentStep >= 1),
+                  const SizedBox(height: 16),
+                  _buildStep('Matching with AI models', _currentStep >= 2),
+                  const SizedBox(height: 16),
+                  _buildStep('Estimating severity', _currentStep >= 3),
+                ],
+              ),
+            ),
+            
+            const Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep(String text, bool isCompleted) {
+    return Row(
+      children: [
+        Icon(
+          isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: isCompleted ? AppColors.success : AppColors.textHint,
+          size: 24,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: isCompleted ? AppColors.textPrimary : AppColors.textSecondary,
+            fontWeight: isCompleted ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
+      ],
     );
   }
 }
