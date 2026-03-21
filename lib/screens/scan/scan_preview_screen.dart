@@ -11,9 +11,13 @@ class ScanPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      body: SafeArea(
-        child: Column(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 150, // Adjust height to fit the content
+        automaticallyImplyLeading: false,
+        title: Column(
           children: [
             // Top Header
             Container(

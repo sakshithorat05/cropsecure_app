@@ -18,7 +18,7 @@ class TreatmentAdvisoryScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => TreatmentProvider(),
       child: Scaffold(
-        backgroundColor: AppColors.cardBackground, // Will be overridden by Stack
+        backgroundColor: Colors.transparent,
         body: Consumer<TreatmentProvider>(
           builder: (context, provider, child) {
             if (provider.isLoading) {
@@ -154,7 +154,7 @@ class TreatmentAdvisoryScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.warning_amber_rounded, size: 64, color: AppColors.warningRed),
+            const Icon(Icons.warning_amber_rounded, size: 64, color: Colors.orange),
             const SizedBox(height: 16),
             Text(
               'Oops! Something went wrong.',

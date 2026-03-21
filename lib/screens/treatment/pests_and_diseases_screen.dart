@@ -33,7 +33,7 @@ class _PestsAndDiseasesScreenState extends State<PestsAndDiseasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreen,
         elevation: 0,

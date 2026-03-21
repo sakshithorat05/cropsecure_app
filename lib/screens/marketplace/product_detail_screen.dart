@@ -93,7 +93,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Product Details', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primaryGreen,

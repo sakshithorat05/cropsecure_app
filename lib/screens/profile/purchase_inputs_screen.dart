@@ -26,7 +26,7 @@ class _PurchaseInputsScreenState extends State<PurchaseInputsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Purchase History', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primaryGreen,

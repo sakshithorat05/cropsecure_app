@@ -18,7 +18,7 @@ class ChemicalTreatmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(
           'Chemical Treatment',

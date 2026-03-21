@@ -26,7 +26,7 @@ class _FarmHistoryScreenState extends State<FarmHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Farm History', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primaryGreen,

@@ -36,7 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGreen,
+      backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>>(
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
@@ -442,7 +442,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               context,
               icon: Icons.qr_code_scanner,
               label: 'Scan Crop\nNow',
-              onTap: () => context.go('/home/scan'),
+              onTap: () => context.push('/home/scan'),
             ),
             _buildActionButton(
               context,

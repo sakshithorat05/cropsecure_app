@@ -114,7 +114,13 @@ class _ScanScreenState extends State<ScanScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: () => context.pop(),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go('/home');
+                    }
+                  },
                   icon: const Icon(Icons.close, color: Colors.white, size: 30),
                 ),
                 Container(

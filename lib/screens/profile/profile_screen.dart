@@ -29,7 +29,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight, // Ensure light background even in dark mode
+      backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _profileFuture,
         builder: (context, snapshot) {

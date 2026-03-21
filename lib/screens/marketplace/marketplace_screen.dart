@@ -28,7 +28,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('Marketplace', style: AppTextStyles.appBarTitle),
         backgroundColor: AppColors.primaryGreen,

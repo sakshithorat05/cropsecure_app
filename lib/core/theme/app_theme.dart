@@ -13,7 +13,7 @@ final class AppTheme {
     useMaterial3: false,
     brightness: Brightness.light,
     primaryColor: AppColors.primaryGreen,
-    scaffoldBackgroundColor: AppColors.backgroundLight,
+    scaffoldBackgroundColor: Colors.transparent,
     
     colorScheme: const ColorScheme.light(
       primary: AppColors.primaryGreen,
@@ -137,7 +137,7 @@ final class AppTheme {
     useMaterial3: false,
     brightness: Brightness.dark,
     primaryColor: AppColors.primaryGreen,
-    scaffoldBackgroundColor: AppColors.backgroundDark,
+    scaffoldBackgroundColor: Colors.transparent,
     
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primaryGreen,

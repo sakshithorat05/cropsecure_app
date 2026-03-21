@@ -38,8 +38,8 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Center(
         child: Column(
           children: [
             // Top Header
