@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "305117925606",
+    "project_id": "cropapp-7c33e",
+    "storage_bucket": "cropapp-7c33e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305117925606:android:f1fa22f97d883e86592b27",
+        "android_client_info": {
+          "package_name": "com.cropsecure.cropsecure_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCwBGLIMZy20E77qmlc93MsdHr61jouz8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
