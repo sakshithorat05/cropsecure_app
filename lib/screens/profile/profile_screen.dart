@@ -6,39 +6,59 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/services/database_service.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Placeholder user details — replace with real user data source when available
-    const String userName = 'John Doe';
-    const String userPhone = '+91 98765 43210';
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  final DatabaseService _db = DatabaseService();
+  final String _tempUid = 'user_123';
+  late Future<Map<String, dynamic>?> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = _db.getUserProfile(_tempUid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Top green header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.md),
-              decoration: const BoxDecoration(
-                color: AppColors.primaryGreen,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(30),
+        child: FutureBuilder<Map<String, dynamic>?>(
+          future: _profileFuture,
+          builder: (context, snapshot) {
+            final userData = snapshot.data;
+            final String userName = userData?['name'] ?? 'Farmer';
+            final String userPhone = userData?['phone'] ?? '+91';
+
+            return Column(
+              children: [
+                // Top green header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryGreen,
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(userName, style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(userPhone, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white)),
+                    ],
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(userName, style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(userPhone, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white)),
-                ],
-              ),
-            ),
+
 
             const SizedBox(height: AppSpacing.lg),
 
@@ -124,12 +144,15 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
+              ],
+            );
+          }
         ),
       ),
     );
   }
 }
+
 
 Widget _buildDetailItem(String title, String value) {
   return Column(

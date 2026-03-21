@@ -19,6 +19,24 @@ class DiseaseDetailsScreen extends StatefulWidget {
 class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
   String _bottomSectionState = 'causes';
 
+  IconData _getIconForSymptom(String iconName) {
+    switch (iconName.toLowerCase()) {
+      case 'grass': return Icons.grass;
+      case 'eco': return Icons.eco;
+      case 'spa': return Icons.spa;
+      default: return Icons.warning_amber_rounded;
+    }
+  }
+
+  Color _getColorForSymptom(String iconName) {
+    switch (iconName.toLowerCase()) {
+      case 'grass': return Colors.lightGreen;
+      case 'eco': return Colors.green;
+      case 'spa': return Colors.amber;
+      default: return Colors.orange;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = widget.data;
@@ -50,39 +68,36 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Images Array (Two images side-by-side matching the new mockup)
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/images/jasmine_crop.jpg',
-                      height: 140,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, e, s) => Container(height: 140, color: Colors.grey[200], child: const Icon(Icons.image, color: Colors.grey)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      height: 140,
-                      color: Colors.green.shade100, // Placeholder for the second spotty leaf image
-                      child: const Center(
-                        child: Text(
-                          'Leaf Image 2',
-                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+            // Dynamic Images Carousel
+            if (data.images.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: SizedBox(
+                  height: 220,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: data.images.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(right: index == data.images.length - 1 ? 0 : 12.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            data.images[index],
+                            height: 220,
+                            width: data.images.length > 1 ? MediaQuery.of(context).size.width * 0.7 : MediaQuery.of(context).size.width - 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, e, s) => Container(
+                              width: 140, height: 220, color: Colors.grey[200], child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
+              ),
+            if (data.images.isNotEmpty) const SizedBox(height: 24),
             
             // Symptoms Title
             Text(
@@ -91,52 +106,27 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${data.diseaseName} – Symptoms in Jasmine',
+              '${data.diseaseName} – Symptoms in ${data.cropAffected}',
               style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 16),
             
-            // Hardcoded Symptom Sections matching Mockup
-            _buildSymptomSection(
-              icon: Icons.grass, 
-              iconColor: Colors.lightGreen,
-              title: 'Early Symptoms', 
-              bullets: [
-                'Small water-soaked or pale brown spots appear on leaves',
-                'Spots usually start at leaf tips or margins',
-                'Affected areas may have a yellow halo around them',
-                'Only a few leaves are affected at this stage',
-              ],
-            ),
-            _buildSymptomSection(
-              icon: Icons.eco, 
-              iconColor: Colors.green,
-              title: 'Progressive Symptoms', 
-              bullets: [
-                'Spots increase in size and number',
-                'Lesions become dark brown to black',
-                'Target-like rings may be visible in some cases',
-                'Multiple spots merge to form large blighted areas',
-                'Leaves begin to curl, wrinkle, or lose shine',
-              ],
-            ),
-            _buildSymptomSection(
-              icon: Icons.spa, 
-              iconColor: Colors.amber,
-              title: 'Advanced / Severe Symptoms', 
-              bullets: [
-                'Large portions of the leaf become dry and scorched',
-                'Leaves turn yellow -> brown -> dry',
-                'Premature leaf fall (defoliation) occurs',
-                'Disease spreads from lower leaves to upper canopy',
-              ],
-            ),
+            // Dynamic Symptom Sections
+            if (data.symptoms.isNotEmpty)
+              ...data.symptoms.map((symptom) => _buildSymptomSection(
+                icon: _getIconForSymptom(symptom.iconName), 
+                iconColor: _getColorForSymptom(symptom.iconName),
+                title: symptom.title, 
+                bullets: symptom.bullets,
+              )),
+            if (data.symptoms.isEmpty)
+              Text('No specific symptoms recorded.', style: AppTextStyles.bodyMedium),
             
             const SizedBox(height: 16),
             Text('More info', style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 4),
             Text(
-              'Scientific name: Alternaria alternata (primary) / Cercospora jasminicola',
+              'Scientific name: ${data.scientificName.isNotEmpty ? data.scientificName : data.causalOrganism}',
               style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500),
             ),
             
@@ -201,6 +191,7 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
   }
 
   Widget _buildPreventiveMeasuresSection() {
+    final measures = widget.data.preventiveMeasures;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -209,23 +200,15 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
           style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 12),
-        _buildBulletText('Maintain proper spacing for good air circulation'),
-        _buildBulletText('Prune regularly to avoid dense canopy'),
-        _buildBulletText('Remove and destroy infected leaves immediately'),
-        _buildBulletText('Avoid water stagnation in the field'),
-        _buildBulletText('Do not use overhead irrigation; water at plant base'),
-        _buildBulletText('Irrigate in morning so leaves dry quickly'),
-        _buildBulletText('Keep field clean and weed-free'),
-        _buildBulletText('Avoid excess nitrogen fertilizers'),
-        _buildBulletText('Apply balanced nutrients to strengthen plants'),
-        _buildBulletText('Spray neem oil 2 ml per liter during early stage'),
-        _buildBulletText('Apply bio-agents (Trichoderma viride, Pseudomonas fluorescens)'),
-        _buildBulletText('Take preventive action during humid and rainy weather'),
+        if (measures.isEmpty)
+           const Text('No preventive measures recorded yet.'),
+        ...measures.map((p) => _buildBulletText(p)),
       ],
     );
   }
 
   Widget _buildWhatCausedItSection() {
+    final causes = widget.data.causes;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,124 +220,88 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        _buildBulletText('Caused by fungal pathogens Alternaria and Cercospora'),
-        _buildBulletText('Fungi survive in infected plant debris and soil'),
-        _buildBulletText('High humidity and continuous leaf wetness favor infection'),
-        _buildBulletText('Frequent rainfall or overhead irrigation spreads spores'),
-        _buildBulletText('Dense plant canopy reduces air circulation'),
+        if (causes.isEmpty)
+           const Text('Causes are not documented for this disease.'),
+        ...causes.map((cause) => _buildBulletText(cause)),
       ],
     );
   }
 
   Widget _buildTreatmentSection() {
+    final organic = widget.data.organicTreatments;
+    final chemical = widget.data.chemicalTreatments;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Organic Treatment',
-          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.85,
-          children: [
-            _buildTreatmentCard(
-              title: 'Trichoderma viride',
-              icon: Icons.eco,
-              color: const Color(0xFFEFF5CA), // pale lime green
-              type: 'Bio-fungicide',
-              use: 'Preventive',
-              dose: '2-4 g/L',
-              benefit: 'Controls fungus, improves soil',
+        if (organic.isNotEmpty) ...[
+          Text(
+            'Organic Treatment',
+            style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.82,
             ),
-            _buildTreatmentCard(
-              title: 'Pseudomonas fluorescens',
-              icon: Icons.eco_outlined,
-              color: const Color(0xFFEFF5CA),
-              type: 'Bio-bacterium',
-              use: 'Preventive + Curative',
-              dose: '2-3 g/L',
-              benefit: 'Boosts plant immunity',
-            ),
-            _buildTreatmentCard(
-              title: 'Neem Oil',
-              icon: Icons.wb_sunny_outlined,
-              color: const Color(0xFFF9F6CA), // pale yellow
-              type: 'Botanical',
-              use: 'Early control',
-              dose: '2 ml/L',
-              benefit: 'Suppresses fungal growth',
-            ),
-            _buildTreatmentCard(
-              title: 'NSKE (Neem Seed)',
-              icon: Icons.water_drop_outlined,
-              color: const Color(0xFFF9F6CA),
-              type: 'Botanical extract',
-              use: 'Preventive',
-              dose: '5% solution',
-              benefit: 'Reduces infection',
-            ),
-          ],
-        ),
+            itemCount: organic.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final t = organic[index];
+              return _buildTreatmentCard(
+                title: t.title,
+                icon: Icons.eco,
+                color: const Color(0xFFEFF5CA), 
+                type: t.type,
+                use: t.use,
+                dose: t.dose,
+                benefit: t.benefit,
+              );
+            },
+          ),
+          const SizedBox(height: 32),
+        ],
         
-        const SizedBox(height: 32),
-        
-        Text(
-          'Chemical Treatment',
-          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.85,
-          children: [
-            _buildTreatmentCard(
-              title: 'Mancozeb 75% WP',
-              icon: Icons.science_outlined,
-              color: const Color(0xFFE3F2FD), // pale blue for chemical
-              type: 'Fungicide',
-              use: 'Preventive',
-              dose: '2-2.5 g/L',
-              benefit: 'Broad-spectrum control',
+        if (chemical.isNotEmpty) ...[
+          Text(
+            'Chemical Treatment',
+            style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.82,
             ),
-            _buildTreatmentCard(
-              title: 'Propiconazole 25% EC',
-              icon: Icons.science,
-              color: const Color(0xFFE3F2FD),
-              type: 'Systemic Fungicide',
-              use: 'Curative',
-              dose: '1 ml/L',
-              benefit: 'Stops fungal spread quickly',
-            ),
-            _buildTreatmentCard(
-              title: 'Carbendazim 50% WP',
-              icon: Icons.science_outlined,
-              color: const Color(0xFFE3F2FD),
-              type: 'Systemic Fungicide',
-              use: 'Curative',
-              dose: '1 g/L',
-              benefit: 'High disease action',
-            ),
-            _buildTreatmentCard(
-              title: 'Copper Oxychloride',
-              icon: Icons.science_outlined,
-              color: const Color(0xFFE3F2FD),
-              type: 'Contact Fungicide',
-              use: 'Preventive',
-              dose: '3 g/L',
-              benefit: 'Protects leaf surfaces',
-            ),
-          ],
-        ),
+            itemCount: chemical.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final t = chemical[index];
+              return _buildTreatmentCard(
+                title: t.title,
+                icon: Icons.science_outlined,
+                color: const Color(0xFFE3F2FD), 
+                type: t.type,
+                use: t.use,
+                dose: t.dose,
+                benefit: t.benefit,
+              );
+            },
+          ),
+        ],
+
+        if (organic.isEmpty && chemical.isEmpty)
+           const Padding(
+             padding: EdgeInsets.all(16.0),
+             child: Center(child: Text('No treatments recorded.')),
+           ),
       ],
     );
   }

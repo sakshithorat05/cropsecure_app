@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/services/database_service.dart';
 
 class DiagnosisResultScreen extends StatelessWidget {
   const DiagnosisResultScreen({super.key});
@@ -136,7 +137,33 @@ class DiagnosisResultScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () async {
+                              final db = DatabaseService();
+                              try {
+                                await db.addFarmHistoryLog('user_123', {
+                                  'type': 'scan',
+                                  'title': 'Scan Result',
+                                  'subtitle': 'Leaf Blight detected',
+                                  'imageUrl': null,
+                                  'metadata': {
+                                    'disease': 'Leaf Blight',
+                                    'severity': 'Medium',
+                                    'confidence': '92%',
+                                  }
+                                });
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Result saved to Farm History')),
+                                  );
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error saving: $e')),
+                                  );
+                                }
+                              }
+                            },
                             icon: const Icon(Icons.save, color: AppColors.white, size: 20),
                             label: Text('Save Result', style: AppTextStyles.labelLarge),
                             style: ElevatedButton.styleFrom(
@@ -149,7 +176,9 @@ class DiagnosisResultScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.push('/treatment/disease/leaf_blight');
+                            },
                             icon: const Icon(Icons.medical_services, color: AppColors.white, size: 20),
                             label: const Text('View Treatment Plan', 
                               style: TextStyle(

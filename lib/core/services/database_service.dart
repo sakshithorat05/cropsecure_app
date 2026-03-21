@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../screens/treatment/models/disease_details_model.dart';
+import '../../screens/profile/models/farm_history_model.dart';
+import '../../screens/marketplace/models/product_model.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -6,6 +9,7 @@ class DatabaseService {
   // Collection References
   CollectionReference get usersCollection => _firestore.collection('users');
   CollectionReference get farmHistoryCollection => _firestore.collection('farm_history');
+  CollectionReference get productsCollection => _firestore.collection('products');
   CollectionReference get diseasesCollection => _firestore.collection('pests_and_diseases');
 
   // --- User Operations ---
@@ -43,7 +47,7 @@ class DatabaseService {
   }
 
   /// Fetches the farm history logs for a specific user ordered by newest
-  Future<List<Map<String, dynamic>>> getUserFarmHistory(String uid) async {
+  Future<List<FarmHistoryModel>> getUserFarmHistory(String uid) async {
     try {
       QuerySnapshot querySnapshot = await farmHistoryCollection
           .where('uid', isEqualTo: uid)
@@ -51,7 +55,7 @@ class DatabaseService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id})
+          .map((doc) => FarmHistoryModel.fromFirestore(doc))
           .toList();
     } catch (e) {
       throw Exception('Failed to get farm history: $e');
@@ -60,18 +64,56 @@ class DatabaseService {
 
   // --- Pests & Diseases Operations ---
 
-  /// Fetches a list of diseases filtered by a specific crop stage
-  Future<List<Map<String, dynamic>>> getDiseasesByStage(String stage) async {
+  /// Fetches all diseases to be grouped locally
+  Future<List<DiseaseDetailsModel>> getAllDiseases() async {
     try {
-      QuerySnapshot querySnapshot = await diseasesCollection
-          .where('stage', isEqualTo: stage)
-          .get();
+      QuerySnapshot querySnapshot = await diseasesCollection.get();
 
       return querySnapshot.docs
-          .map((doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id})
+          .map((doc) => DiseaseDetailsModel.fromJson(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     } catch (e) {
-      throw Exception('Failed to get diseases by stage: $e');
+      throw Exception('Failed to get all diseases: $e');
+    }
+  }
+
+  // --- Marketplace Operations ---
+
+  /// Fetches all products for the marketplace
+  Future<List<ProductModel>> getAllProducts() async {
+    try {
+      QuerySnapshot querySnapshot = await productsCollection.get();
+      return querySnapshot.docs
+          .map((doc) => ProductModel.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get products: $e');
+    }
+  }
+
+  /// Fetches summary stats for the dashboard
+  Future<Map<String, dynamic>> getDashboardStats(String uid) async {
+    try {
+      final history = await getUserFarmHistory(uid);
+      
+      int totalScans = history.where((l) => l.type == FarmHistoryType.scan).length;
+      int treatmentsApplied = history.where((l) => l.type == FarmHistoryType.treatment).length;
+      int diseasesDetected = history.where((l) => l.type == FarmHistoryType.scan && l.metadata.containsKey('disease')).length;
+
+      return {
+        'totalScans': totalScans.toString(),
+        'treatmentsApplied': treatmentsApplied.toString(),
+        'diseasesDetected': diseasesDetected.toString(),
+        'recoveryRate': '92%', // Placeholder for now or calculate if logic exists
+      };
+    } catch (e) {
+      return {
+        'totalScans': '0',
+        'treatmentsApplied': '0',
+        'diseasesDetected': '0',
+        'recoveryRate': '0%',
+      };
     }
   }
 }
+

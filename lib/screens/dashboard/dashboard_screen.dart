@@ -1,135 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/services/database_service.dart';
 import '../../core/theme/app_spacing.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final DatabaseService _db = DatabaseService();
+  final String _tempUid = 'user_123';
+  late Future<Map<String, dynamic>> _dashboardDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardDataFuture = _loadDashboardData();
+  }
+
+  Future<Map<String, dynamic>> _loadDashboardData() async {
+    final profile = await _db.getUserProfile(_tempUid);
+    final stats = await _db.getDashboardStats(_tempUid);
+    return {
+      'name': profile?['name'] ?? 'Farmer',
+      'stats': stats,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.lightGreen,
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/splash_bg.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Green Header Section
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGreen,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                  padding: EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    80,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Welcome Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _dashboardDataFuture,
+        builder: (context, snapshot) {
+          final data = snapshot.data;
+          final String userName = data?['name'] ?? 'Sakshi';
+          final Map<String, dynamic> stats = data?['stats'] ?? {
+            'totalScans': '0',
+            'diseasesDetected': '0',
+            'treatmentsApplied': '0',
+            'recoveryRate': '0%',
+          };
+
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/splash_bg.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Green Header Section
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGreen,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        80,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          // Welcome Header
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Welcome, Sakshi.',
-                                style: AppTextStyles.displayMedium.copyWith(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Welcome, $userName.',
+                                    style: AppTextStyles.displayMedium.copyWith(
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    'Today\'s task',
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: AppColors.white.withAlpha(230),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Today\'s task',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.white.withAlpha(230),
+                              Container(
+                                padding: EdgeInsets.all(AppSpacing.sm),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [AppColors.softShadow],
+                                ),
+                                child: const Icon(
+                                  Icons.wb_cloudy,
+                                  color: AppColors.primaryGreen,
+                                  size: 28,
                                 ),
                               ),
                             ],
                           ),
-                          Container(
-                            padding: EdgeInsets.all(AppSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [AppColors.softShadow],
-                            ),
-                            child: const Icon(
-                              Icons.wb_cloudy,
-                              color: AppColors.primaryGreen,
-                              size: 28,
+                          SizedBox(height: AppSpacing.lg),
+                          // Today's Tasks
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _buildTaskChip('Spray scheduled 8 PM'),
+                                SizedBox(width: AppSpacing.md),
+                                _buildTaskChip('Reason after rainfall'),
+                                SizedBox(width: AppSpacing.md),
+                                _buildTaskChip('Fertilizer due tomorrow'),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: AppSpacing.lg),
-                      // Today's Tasks
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildTaskChip('Spray scheduled 8 PM'),
-                            SizedBox(width: AppSpacing.md),
-                            _buildTaskChip('Reason after rainfall'),
-                            SizedBox(width: AppSpacing.md),
-                            _buildTaskChip('Fertilizer due tomorrow'),
-                          ],
-                        ),
+                    ),
+                    // My Crop Card with overlap
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      child: Transform.translate(
+                        offset: const Offset(0, -30),
+                        child: _buildMyCropCard(context),
                       ),
-                    ],
-                  ),
-                ),
-                // My Crop Card with overlap
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  child: Transform.translate(
-                    offset: const Offset(0, -30),
-                    child: _buildMyCropCard(context),
-                  ),
-                ),
-                SizedBox(height: AppSpacing.md),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Disease Risk Alert
-                      _buildDiseaseRiskAlert(context),
-                      SizedBox(height: AppSpacing.lg),
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Disease Risk Alert
+                          _buildDiseaseRiskAlert(context),
+                          SizedBox(height: AppSpacing.lg),
 
-                      // What would you like to do? Section
-                      _buildActionButtons(context),
-                      SizedBox(height: AppSpacing.lg),
+                          // What would you like to do? Section
+                          _buildActionButtons(context),
+                          SizedBox(height: AppSpacing.lg),
 
-                      // Your Farm at a Glance Section
-                      _buildFarmAtGlance(context),
-                      SizedBox(height: AppSpacing.xl),
-                    ],
-                  ),
+                          // Your Farm at a Glance Section
+                          _buildFarmAtGlance(context, stats),
+                          SizedBox(height: AppSpacing.xl),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }
       ),
     );
   }
@@ -477,7 +515,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   // Your Farm at a Glance Section
-  Widget _buildFarmAtGlance(BuildContext context) {
+  Widget _buildFarmAtGlance(BuildContext context, Map<String, dynamic> stats) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -507,19 +545,19 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               _buildGlanceStatItem(
                 label: 'Total scans',
-                value: '12',
+                value: stats['totalScans'] ?? '0',
               ),
               _buildGlanceStatItem(
                 label: 'Diseases\ndetected',
-                value: '1',
+                value: stats['diseasesDetected'] ?? '0',
               ),
               _buildGlanceStatItem(
                 label: 'Treatments\napplied',
-                value: '2',
+                value: stats['treatmentsApplied'] ?? '0',
               ),
               _buildGlanceStatItem(
                 label: 'Recovery\nrate',
-                value: '92%',
+                value: '0%', // Placeholder for now
               ),
             ],
           ),

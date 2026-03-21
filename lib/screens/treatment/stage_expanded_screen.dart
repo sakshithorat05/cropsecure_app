@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import 'widgets/disease_stage_card.dart';
+import 'models/disease_details_model.dart';
 
 class StageExpandedScreen extends StatelessWidget {
   final String stageTitle;
-  final List<Map<String, String>> diseases;
+  final List<DiseaseDetailsModel> diseases;
 
   const StageExpandedScreen({
     super.key,
@@ -32,12 +33,7 @@ class StageExpandedScreen extends StatelessWidget {
         ),
         itemCount: diseases.length,
         itemBuilder: (context, index) {
-          final disease = diseases[index];
-          return DiseaseStageCard(
-            imageUrl: disease['imageUrl'] ?? '',
-            pestType: disease['pestType'] ?? '',
-            diseaseName: disease['diseaseName'] ?? '',
-          );
+          return DiseaseStageCard(disease: diseases[index]);
         },
       ),
     );

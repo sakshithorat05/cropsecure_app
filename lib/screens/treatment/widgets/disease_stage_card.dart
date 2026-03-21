@@ -5,19 +5,18 @@ import '../../../core/theme/app_text_styles.dart';
 import '../models/disease_details_model.dart';
 
 class DiseaseStageCard extends StatelessWidget {
-  final String imageUrl;
-  final String pestType;
-  final String diseaseName;
+  final DiseaseDetailsModel disease;
 
   const DiseaseStageCard({
     super.key,
-    required this.imageUrl,
-    required this.pestType,
-    required this.diseaseName,
+    required this.disease,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Attempt to grab the first image if any exist, otherwise empty
+    final displayImage = disease.images.isNotEmpty ? disease.images.first : '';
+
     return Container(
       width: 140, // Fixed width for horizontal scrolling cards
       margin: const EdgeInsets.only(right: 12, bottom: 8),
@@ -32,28 +31,8 @@ class DiseaseStageCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            // Generate dummy details for the preview
-            final dummyDetails = DiseaseDetailsModel(
-              diseaseName: diseaseName,
-              cropAffected: 'Jasmine',
-              diseaseType: pestType,
-              causalOrganism: 'Sample Pathogen',
-              affectedPlantPart: 'Leaves and Stems',
-              primarySpread: 'Wind and rain splash',
-              severityLevel: 'High',
-              description: 'This is a detailed description of $diseaseName. It commonly affects the plant during this stage and requires immediate attention to prevent severe crop loss.',
-              imageUrl: imageUrl.isNotEmpty ? imageUrl : 'assets/images/placeholder.png',
-              identifyStages: [
-                IdentifyStage(stageNumber: 1, title: 'Early Stage', description: 'Initial spots appear on the lower leaves. Often neglected as nutrient deficiency.'),
-                IdentifyStage(stageNumber: 2, title: 'Advanced Stage', description: 'Spots enlarge and turn brown with characteristic yellow halos. Fungal growth may be visible.'),
-              ],
-              favourableConditions: [
-                FavourableCondition(icon: Icons.water_drop, title: 'High Humidity', description: 'Humidity > 85% accelerates spore germination.', backgroundColor: Colors.blue),
-                FavourableCondition(icon: Icons.thermostat, title: 'Warm Temperature', description: 'Optimal growth between 24°C and 30°C.', backgroundColor: Colors.orange),
-              ],
-            );
-            
-            context.push('/disease-details', extra: dummyDetails);
+            // Navigate passing the REAL data object natively
+            context.push('/disease-details', extra: disease);
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +44,9 @@ class DiseaseStageCard extends StatelessWidget {
                   height: 90,
                   width: double.infinity,
                   color: Colors.grey[200], // Placeholder background
-                  child: const Icon(Icons.image, color: Colors.grey, size: 40),
+                  child: displayImage.isNotEmpty 
+                      ? Image.network(displayImage, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.image, color: Colors.grey, size: 40))
+                      : const Icon(Icons.image, color: Colors.grey, size: 40),
                 ),
               ),
               Padding(
@@ -74,7 +55,7 @@ class DiseaseStageCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      pestType,
+                      disease.diseaseType,
                       style: AppTextStyles.bodySmall.copyWith(
                         fontSize: 10,
                         color: AppColors.textSecondary,
@@ -84,7 +65,7 @@ class DiseaseStageCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      diseaseName,
+                      disease.diseaseName,
                       style: AppTextStyles.headingSmall.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,

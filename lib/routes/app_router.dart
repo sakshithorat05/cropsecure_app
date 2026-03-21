@@ -17,7 +17,6 @@ import '../screens/scan/scan_preview_screen.dart';
 import '../screens/scan/analyzing_screen.dart';
 import '../screens/scan/diagnosis_result_screen.dart';
 import '../screens/treatment/treatment_advisory_screen.dart';
-import '../screens/treatment/disease_detail_screen.dart';
 import '../screens/treatment/disease_details_screen.dart';
 import '../screens/treatment/models/disease_details_model.dart';
 import '../screens/treatment/models/treatment_advisory_model.dart';
@@ -25,6 +24,7 @@ import '../screens/treatment/chemical_treatment_screen.dart';
 import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';
 import '../screens/treatment/stage_expanded_screen.dart';
+import '../screens/treatment/models/disease_details_model.dart';
 import '../screens/marketplace/marketplace_screen.dart';
 import '../screens/marketplace/product_detail_screen.dart';
 import '../screens/marketplace/cart_screen.dart';
@@ -118,10 +118,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const TreatmentAdvisoryScreen(),
             routes: [
               GoRoute(
-                path: 'disease/:id',
-                builder: (context, state) => const DiseaseDetailScreen(),
-              ),
-              GoRoute(
                 path: 'chemical',
                 builder: (context, state) {
                   final data = state.extra as TreatmentModel?;
@@ -161,12 +157,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                   final args = state.extra as Map<String, dynamic>;
                   return StageExpandedScreen(
                     stageTitle: args['title'] as String,
-                    diseases: args['diseases'] as List<Map<String, String>>,
+                    diseases: args['diseases'] as List<DiseaseDetailsModel>,
                   );
                 },
               ),
             ],
           ),
+
           
           // 2. Marketplace
           GoRoute(
