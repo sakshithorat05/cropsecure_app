@@ -21,7 +21,7 @@ final class AppColors {
   static const Color warningRed = Color(0xFFD32F2F);
   
   static BoxShadow get softShadow => BoxShadow(
-        color: Colors.black.withOpacity(0.05),
+        color: Colors.black.withAlpha(13), // 0.05 * 255
         blurRadius: 10,
         offset: const Offset(0, 4),
       );

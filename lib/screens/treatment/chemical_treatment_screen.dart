@@ -191,6 +191,7 @@ class ChemicalTreatmentScreen extends StatelessWidget {
               const StepItem(
                 stepNumber: 7,
                 description: 'Ensure uniform coverage; avoid runoff',
+                isLast: true,
               ),
               const SizedBox(height: 24),
 

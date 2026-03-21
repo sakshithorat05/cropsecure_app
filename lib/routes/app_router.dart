@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/app_shell.dart';
-import '../providers/auth_provider.dart';
+import '../core/theme/app_colors.dart';
 
 // Import Screens
 import '../screens/splash/splash_screen.dart';
@@ -21,6 +21,7 @@ import '../screens/treatment/disease_details_screen.dart';
 import '../screens/treatment/models/disease_details_model.dart';
 import '../screens/treatment/models/treatment_advisory_model.dart';
 import '../screens/treatment/chemical_treatment_screen.dart';
+import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';
 import '../screens/marketplace/marketplace_screen.dart';
 import '../screens/marketplace/product_detail_screen.dart';
@@ -34,7 +35,7 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(d
 
 /// Provides the GoRouter instance
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  // final authState = ref.watch(authProvider); // Removed unused variable
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -132,14 +133,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final data = state.extra as TreatmentModel?;
                   if (data == null) {
-                    return const Scaffold(
-                      body: Center(child: Text('Treatment data missing.')),
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Error'),
+                        backgroundColor: AppColors.primaryGreen,
+                      ),
+                      body: const Center(
+                        child: Text('Treatment data missing or invalid.'),
+                      ),
                     );
                   }
-                  // Return OrganicTreatmentScreen when built
-                  return const Scaffold(
-                    body: Center(child: Text('Organic Treatment Screen coming soon')),
-                  );
+                  return OrganicTreatmentScreen(data: data);
                 },
               ),
               GoRoute(

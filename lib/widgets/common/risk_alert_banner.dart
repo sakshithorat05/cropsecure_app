@@ -16,40 +16,48 @@ class RiskAlertBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.warning.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          border: Border.all(color: AppColors.warning, width: 1.5),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.warning_amber_rounded,
-              color: AppColors.riskHigh,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                message,
-                style: AppTextStyles.headingSmall.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-            if (onTap != null)
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.warning.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            border: Border.all(color: AppColors.warning, width: 1.5),
+          ),
+          child: Row(
+            children: [
               const Icon(
-                Icons.chevron_right,
+                Icons.warning_amber_rounded,
                 color: AppColors.riskHigh,
               ),
-          ],
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  message,
+                  style: AppTextStyles.headingSmall.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              if (onTap != null)
+                const AnimatedRotation(
+                  turns: 0, // Not expandable yet
+                  duration: Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.riskHigh,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
