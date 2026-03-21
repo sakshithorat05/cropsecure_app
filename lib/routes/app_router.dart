@@ -13,6 +13,7 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/scan/scan_screen.dart';
+import '../screens/scan/scan_preview_screen.dart';
 import '../screens/scan/analyzing_screen.dart';
 import '../screens/scan/diagnosis_result_screen.dart';
 import '../screens/treatment/treatment_advisory_screen.dart';
@@ -70,21 +71,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OTPScreen(),
       ),
       
-      // Full screen scan routes outside of the bottom sheet navigation
       GoRoute(
          path: '/home/scan',
-         parentNavigatorKey: _rootNavigatorKey,
+         parentNavigatorKey: _rootNavigatorKey, // Full screen camera
          builder: (context, state) => const ScanScreen(),
-      ),
-      GoRoute(
-         path: '/home/scan/analyzing',
-         parentNavigatorKey: _rootNavigatorKey,
-         builder: (context, state) => const AnalyzingScreen(),
-      ),
-      GoRoute(
-         path: '/home/scan/result',
-         parentNavigatorKey: _rootNavigatorKey,
-         builder: (context, state) => const DiagnosisResultScreen(),
       ),
       GoRoute(
          path: '/disease-details',
@@ -105,6 +95,20 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/home',
             builder: (context, state) => const DashboardScreen(),
+            routes: [
+              GoRoute(
+                path: 'scan/preview',
+                builder: (context, state) => const ScanPreviewScreen(),
+              ),
+              GoRoute(
+                path: 'scan/analyzing',
+                builder: (context, state) => const AnalyzingScreen(),
+              ),
+              GoRoute(
+                path: 'scan/result',
+                builder: (context, state) => const DiagnosisResultScreen(),
+              ),
+            ],
           ),
           
           // 1. Treatment
