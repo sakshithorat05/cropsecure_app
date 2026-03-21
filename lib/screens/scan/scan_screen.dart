@@ -1,10 +1,98 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 
-class ScanScreen extends StatelessWidget {
+class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
+
+  @override
+  State<ScanScreen> createState() => _ScanScreenState();
+}
+
+class _ScanScreenState extends State<ScanScreen> {
+  CameraController? _controller;
+  List<CameraDescription> _cameras = [];
+  bool _isInit = false;
+  bool _isRearCameraSelected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      _cameras = await availableCameras();
+      if (_cameras.isNotEmpty) {
+        await _setupCameraController(_cameras[0]);
+      }
+    } catch (e) {
+      debugPrint("Camera init error: $e");
+    }
+  }
+
+  Future<void> _setupCameraController(CameraDescription camera) async {
+    final previousController = _controller;
+    
+    final CameraController cameraController = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+
+    // Dispose the previous controller
+    if (previousController != null) {
+      await previousController.dispose();
+    }
+
+    // Replace with the new controller
+    if (mounted) {
+      setState(() {
+        _controller = cameraController;
+      });
+    }
+
+    // Update state to initialize camera
+    try {
+      await cameraController.initialize();
+      if (mounted) setState(() => _isInit = true);
+    } catch (e) {
+      debugPrint("Camera initialize error: $e");
+    }
+  }
+
+  void _flipCamera() {
+    if (_cameras.length < 2) return;
+    setState(() {
+      _isInit = false;
+      _isRearCameraSelected = !_isRearCameraSelected;
+    });
+    
+    final int cameraIndex = _isRearCameraSelected ? 0 : 1;
+    if (_cameras.length > cameraIndex) {
+      _setupCameraController(_cameras[cameraIndex]);
+    }
+  }
+
+  Future<void> _takePicture() async {
+    if (_controller == null || !_controller!.value.isInitialized) return;
+    try {
+      final XFile image = await _controller!.takePicture();
+      if (mounted) {
+        context.push('/home/scan/preview', extra: image.path);
+      }
+    } catch (e) {
+      debugPrint("Take picture error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +100,9 @@ class ScanScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Simulated Camera Feed Placeholder
+          // Native Camera Feed
           Positioned.fill(
-            child: Container(
-              color: Colors.black87,
-              child: const Center(
-                child: Icon(Icons.camera_alt, color: Colors.white24, size: 100),
-              ),
-            ),
+            child: _buildCameraFeed(),
           ),
           
           // Header Actions
@@ -93,10 +176,7 @@ class ScanScreen extends StatelessWidget {
                   
                   // Capture Button
                   GestureDetector(
-                    onTap: () {
-                      // Navigate to Preview Screen after capturing 
-                      context.push('/home/scan/preview');
-                    },
+                    onTap: _takePicture,
                     child: Container(
                       width: 70,
                       height: 70,
@@ -119,7 +199,7 @@ class ScanScreen extends StatelessWidget {
                   
                   // Flip Camera Button
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _flipCamera,
                     icon: const Icon(Icons.flip_camera_ios, color: Colors.white, size: 30),
                   ),
                 ],
@@ -128,6 +208,17 @@ class ScanScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCameraFeed() {
+    if (!_isInit || _controller == null) {
+      return const Center(child: CircularProgressIndicator(color: AppColors.primaryLight));
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: CameraPreview(_controller!),
     );
   }
 

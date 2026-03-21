@@ -1,10 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 
 class ScanPreviewScreen extends StatelessWidget {
-  const ScanPreviewScreen({super.key});
+  final String? imagePath;
+  const ScanPreviewScreen({super.key, this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +54,11 @@ class ScanPreviewScreen extends StatelessWidget {
                     child: Container(
                       width: double.infinity,
                       color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.image, size: 80, color: Colors.grey),
-                      ),
+                      child: imagePath != null 
+                        ? Image.file(File(imagePath!), fit: BoxFit.cover)
+                        : const Center(
+                            child: Icon(Icons.image, size: 80, color: Colors.grey),
+                          ),
                     ),
                   ),
                   InkWell(
