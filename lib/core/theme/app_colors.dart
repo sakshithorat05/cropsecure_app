@@ -12,6 +12,21 @@ final class AppColors {
   /// Deep green — buttons, headers, active nav
   static const Color primaryGreen = Color(0xFF2E7D32);
   
+  // --- Figma Specific Redesign Colors ---
+  static const Color darkGreen = Color(0xFF1B5E20); 
+  static const Color lightGreen = Color(0xFFE8F5E9); 
+  static const Color lightBackground = Color(0xFFF9FBE7); 
+  static const Color alertYellow = Color(0xFFFFF3E0); 
+  static const Color cardBackground = Colors.white;
+  static const Color warningRed = Color(0xFFD32F2F);
+  
+  static BoxShadow get softShadow => BoxShadow(
+        color: Colors.black.withOpacity(0.05),
+        blurRadius: 10,
+        offset: const Offset(0, 4),
+      );
+  // --------------------------------------
+  
   /// Lighter green — hover / active states
   static const Color primaryLight = Color(0xFF4CAF50);
   

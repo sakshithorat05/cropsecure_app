@@ -16,64 +16,65 @@ class BottomNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Standard Bottom Navigation Bar
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColors.white,
-            border: Border(
-              top: BorderSide(color: AppColors.divider, width: 1),
-            ),
-          ),
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: onTap,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.local_florist_outlined),
-                activeIcon: Icon(Icons.local_florist),
-                label: 'My Crop',
-              ),
-              BottomNavigationBarItem(
-                // Empty space for the center FAB
-                icon: Icon(Icons.medical_services_outlined),
-                activeIcon: Icon(Icons.medical_services),
-                label: 'Treatment',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.storefront_outlined),
-                activeIcon: Icon(Icons.storefront),
-                label: 'Market',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: Icon(Icons.person),
-                label: 'Profile',
-              ),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.primaryGreen,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildNavItem(0, Icons.local_florist_outlined, Icons.local_florist, 'My Crop'),
+              _buildNavItem(1, Icons.medical_services_outlined, Icons.medical_services, 'Treatment'),
+              const SizedBox(width: 48), // Notch clearance for center FAB
+              _buildNavItem(2, Icons.storefront_outlined, Icons.storefront, 'Market'),
+              _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
             ],
           ),
         ),
-        
-        // Custom Centered FAB overlapping the nav bar
-        Positioned(
-          bottom: 24, // Lift it slightly above the bar
-          child: FloatingActionButton(
-            heroTag: 'scanFab',
-            backgroundColor: AppColors.primaryGreen,
-            elevation: 4,
-            shape: const CircleBorder(),
-            onPressed: onScanTap,
-            child: const Icon(
-              Icons.camera_alt,
-              color: AppColors.white,
-              size: 28,
-            ),
-          ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData outlineIcon, IconData filledIcon, String label) {
+    final bool isActive = currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isActive ? filledIcon : outlineIcon,
+              color: isActive ? AppColors.primaryGreen : Colors.white,
+              size: 24,
+            ),
+            if (isActive) ...[
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ]
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/theme/app_colors.dart';
 import 'bottom_navbar.dart';
 
 final navIndexProvider = NotifierProvider<NavIndexNotifier, int>(() {
@@ -34,6 +35,19 @@ class AppShell extends ConsumerWidget {
 
     return Scaffold(
       body: child, // The current nested page provided by ShellRoute
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'globalScanFab',
+        backgroundColor: AppColors.primaryGreen,
+        elevation: 6,
+        shape: const CircleBorder(),
+        onPressed: () => context.go('/home/scan'),
+        child: const Icon(
+          Icons.qr_code_scanner, // Custom scanner icon
+          color: Colors.white,
+          size: 28,
+        ),
+      ),
       bottomNavigationBar: BottomNavbar(
         currentIndex: currentIndex,
         onTap: (index) => _onItemTapped(index, context),

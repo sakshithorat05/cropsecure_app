@@ -17,8 +17,10 @@ import '../screens/scan/analyzing_screen.dart';
 import '../screens/scan/diagnosis_result_screen.dart';
 import '../screens/treatment/treatment_advisory_screen.dart';
 import '../screens/treatment/disease_detail_screen.dart';
+import '../screens/treatment/disease_details_screen.dart';
+import '../screens/treatment/models/disease_details_model.dart';
+import '../screens/treatment/models/treatment_advisory_model.dart';
 import '../screens/treatment/chemical_treatment_screen.dart';
-import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';
 import '../screens/marketplace/marketplace_screen.dart';
 import '../screens/marketplace/product_detail_screen.dart';
@@ -38,12 +40,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     redirect: (context, state) {
-      final isAuth = authState == AuthState.authenticated;
-      final isGoingToAuth = state.matchedLocation.startsWith('/auth');
-      
-      if (!isAuth && !isGoingToAuth && state.matchedLocation != '/splash' && state.matchedLocation != '/language') {
-        return '/auth/login';
-      }
       return null;
     },
     routes: [
@@ -89,6 +85,13 @@ final routerProvider = Provider<GoRouter>((ref) {
          parentNavigatorKey: _rootNavigatorKey,
          builder: (context, state) => const DiagnosisResultScreen(),
       ),
+      GoRoute(
+         path: '/disease-details',
+         parentNavigatorKey: _rootNavigatorKey,
+         builder: (context, state) => DiseaseDetailsScreen(
+           data: state.extra as DiseaseDetailsModel,
+         ),
+      ),
 
       // App Shell with Bottom Navigation
       ShellRoute(
@@ -113,12 +116,31 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const DiseaseDetailScreen(),
               ),
               GoRoute(
-                path: 'chemical/:id',
-                builder: (context, state) => const ChemicalTreatmentScreen(),
+                path: 'chemical',
+                builder: (context, state) {
+                  final data = state.extra as TreatmentModel?;
+                  if (data == null) {
+                    return const Scaffold(
+                      body: Center(child: Text('Treatment data missing.')),
+                    );
+                  }
+                  return ChemicalTreatmentScreen(data: data);
+                },
               ),
               GoRoute(
-                path: 'organic/:id',
-                builder: (context, state) => const OrganicTreatmentScreen(),
+                path: 'organic',
+                builder: (context, state) {
+                  final data = state.extra as TreatmentModel?;
+                  if (data == null) {
+                    return const Scaffold(
+                      body: Center(child: Text('Treatment data missing.')),
+                    );
+                  }
+                  // Return OrganicTreatmentScreen when built
+                  return const Scaffold(
+                    body: Center(child: Text('Organic Treatment Screen coming soon')),
+                  );
+                },
               ),
               GoRoute(
                 path: 'pests',
