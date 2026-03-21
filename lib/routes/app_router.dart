@@ -24,6 +24,7 @@ import '../screens/treatment/models/treatment_advisory_model.dart';
 import '../screens/treatment/chemical_treatment_screen.dart';
 import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';
+import '../screens/treatment/stage_expanded_screen.dart';
 import '../screens/marketplace/marketplace_screen.dart';
 import '../screens/marketplace/product_detail_screen.dart';
 import '../screens/marketplace/cart_screen.dart';
@@ -155,6 +156,16 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'pests',
                 builder: (context, state) => const PestsAndDiseasesScreen(),
+              ),
+              GoRoute(
+                path: 'stage-expanded',
+                builder: (context, state) {
+                  final args = state.extra as Map<String, dynamic>;
+                  return StageExpandedScreen(
+                    stageTitle: args['title'] as String,
+                    diseases: args['diseases'] as List<Map<String, String>>,
+                  );
+                },
               ),
             ],
           ),
