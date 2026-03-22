@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class DiseaseDetailsModel {
   final String id;
   final String cropAffected;
@@ -128,4 +130,30 @@ class DiseaseTreatmentModel {
       safety: json['safety'] != null ? List<String>.from(json['safety']) : [],
     );
   }
+}
+
+class FavourableCondition {
+  final String title;
+  final String description;
+  final IconData icon;
+  final Color backgroundColor;
+
+  FavourableCondition({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.backgroundColor,
+  });
+}
+
+class IdentifyStage {
+  final int stageNumber;
+  final String title;
+  final String description;
+
+  IdentifyStage({
+    required this.stageNumber,
+    required this.title,
+    required this.description,
+  });
 }
