@@ -89,15 +89,29 @@ class Plot {
   }
 
   factory Plot.fromMap(Map<String, dynamic> map) {
+    // Handle both nested and top-level fields for robustness
+    final landDetails = map['landDetails'] as Map<String, dynamic>?;
+    final areaValue = landDetails != null ? landDetails['area'] : map['area'];
+    final unitValue = landDetails != null ? landDetails['unit'] : map['unit'];
+
+    String locationValue = 'Unknown';
+    final rawLocation = map['location'];
+    if (rawLocation is String) {
+      locationValue = rawLocation;
+    } else if (rawLocation is Map && rawLocation['coordinates'] != null) {
+      final coords = rawLocation['coordinates'] as List;
+      locationValue = '${coords[1]}, ${coords[0]}';
+    }
+
     return Plot(
-      id: map['_id']?.toHexString() ?? '',
+      id: map['_id']?.toHexString() ?? map['id'] ?? '',
       surveyNo: map['surveyNo'] ?? '',
       cropName: map['cropName'] ?? '',
       variety: map['variety'] ?? '',
-      area: map['landDetails']?['area']?.toString() ?? '0',
-      unit: map['landDetails']?['unit'] ?? 'Acres',
-      ownerName: 'Farmer', // To be fetched or joined
-      location: '${map['location']?['coordinates']?[1]}, ${map['location']?['coordinates']?[0]}',
+      area: areaValue?.toString() ?? '0',
+      unit: unitValue ?? 'Acres',
+      ownerName: map['ownerName'] ?? 'Farmer',
+      location: locationValue,
       status: map['status'] ?? 'Healthy',
       lastScan: map['lastScan'] ?? 'N/A',
       cropType: map['cropType'],
@@ -105,7 +119,7 @@ class Plot {
       seedSource: map['seedSource'],
       specificTech: map['specificTech'],
       seedTreatment: map['seedTreatment'],
-      sowingDate: map['sowingDate'],
+      sowingDate: map['sowingDate'] is DateTime ? map['sowingDate'] : null,
       hasMixedCrop: map['hasMixedCrop'] ?? false,
       mixedCropName: map['mixedCropName'],
       mixedCropVariety: map['mixedCropVariety'],
