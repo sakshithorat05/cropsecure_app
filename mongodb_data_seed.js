@@ -83,14 +83,71 @@ db.getSiblingDB('CropSecureDB').pests_and_diseases.insertMany([
     "diseaseName": "Leaf Blight",
     "stages": ["Seedling", "Vegetative"],
     "diseaseType": "Fungal",
-    "scientificName": "Exserohilum turcicum",
-    "causalOrganism": "Fungus",
+    "scientificName": "Alternaria alternata / Cercospora jasminicola",
+    "causalOrganism": "Alternaria alternata / Cercospora jasminicola",
+    "description": "Leaf blight disease of jasmine is a fungal disease that affects the leaves, causing dark lesions and drying. " +
+                   "It reduces photosynthetic activity, weakens plant growth, and lowers flower yield and quality. " +
+                   "If left untreated, the disease can lead to severe defoliation and poor crop performance.",
+    "affectedPart": "Leaves",
+    "primarySpread": "Airborne spores, rain splash",
+    "severityLevel": "Medium to High",
     "symptoms": [
       {
-        "title": "Leaf Lesions",
+        "title": "Early Symptoms",
         "iconName": "eco",
-        "bullets": ["Oval water-soaked spots", "Browning of leaf tips"]
+        "bullets": [
+          "Small water-soaked or pale brown spots appear on leaves",
+          "Spots usually start at leaf tips or margins",
+          "Affected areas may have a yellow halo around them",
+          "Only a few leaves are affected at this stage"
+        ]
+      },
+      {
+        "title": "Progressive Symptoms",
+        "iconName": "spa",
+        "bullets": [
+          "Spots increase in size and number",
+          "Lesions become dark brown to black",
+          "Target-like rings may be visible in some cases",
+          "Multiple spots merge to form large blighted areas",
+          "Leaves begin to curl, wrinkle, or lose shine"
+        ]
+      },
+      {
+        "title": "Advanced Symptoms",
+        "iconName": "warning_amber_rounded",
+        "bullets": [
+          "Large portions of the leaf become dry and scorched",
+          "Leaves turn yellow -> brown -> dry",
+          "Premature leaf fall (defoliation) occurs",
+          "Disease spreads from lower leaves to upper canopy"
+        ]
       }
+    ],
+    "howToIdentify": [
+      { "stageNumber": 1, "title": "Early Stage (Days 1-3)", 
+        "description": "Small, water-soaked light brown spots appear first on older leaves. " +
+                       "The spots are circular (2-3 mm) and may have a yellow halo. " +
+                       "Initially, only a few leaves are affected." },
+      { "stageNumber": 2, "title": "Developing Stage (Days 4-7)", 
+        "description": "Spots enlarge with target-like rings, may merge into brown patches, " +
+                       "edges curl, yellowing appears, and disease spreads upward." },
+      { "stageNumber": 3, "title": "Advanced Stage (Days 8-14)", 
+        "description": "Leaves turn brown, dry, and drop; flower buds may discolor and fail to open. " +
+                       "Heavy leaf loss makes the plant thin and stunted." },
+      { "stageNumber": 4, "title": "Severe Stage (Beyond 14 days)", 
+        "description": "Most leaves affected or fallen. Stems may show dark lesions. " +
+                       "Flowering stops almost completely, and plant health is severely compromised." }
+    ],
+    "favourableConditions": [
+      { "title": "High Humidity", "description": "Relative humidity above 70-80%. Common during cloudy & rainy weather", "iconName": "water_drop" },
+      { "title": "Warm Temperature", "description": "Ideal range 25-30°C. Warm days and nights increase spread", "iconName": "thermostat" },
+      { "title": "Poor Air Circulation", "description": "Dense planting or overgrown plants. Slow drying of leaves after watering", "iconName": "air" },
+      { "title": "Frequent Rain / Leaf Wetness", "description": "Continuous rainfall or overhead irrigation. Leaves remain wet for long hours", "iconName": "cloudy_snowing" }
+    ],
+    "images": [
+      "https://images.verticalscope.info/jasm-leaf-blight.jpg",
+      "https://example.com/jasmine_blight_2.jpg"
     ],
     "organicTreatments": [
       {
@@ -126,12 +183,50 @@ db.getSiblingDB('CropSecureDB').pests_and_diseases.insertMany([
     "stages": ["Vegetative", "Flowering", "Harvesting"],
     "diseaseType": "Fungal",
     "scientificName": "Alternaria solani",
+    "causalOrganism": "Alternaria solani",
+    "description": "Early blight is a common fungal disease of tomato plants caused by Alternaria solani. " +
+                   "It affects the leaves, stems, and fruits, often identified by concentric rings or 'target' patterns in the spots. " +
+                   "If left unmanaged, it can lead to significant defoliation and reduced fruit quality.",
+    "affectedPart": "Leaves, Stems, Fruit",
+    "primarySpread": "Wind-blown spores, splashing water",
+    "severityLevel": "Moderate",
+    "images": [
+      "https://extension.umn.edu/sites/extension.umn.edu/files/styles/extra_large/public/early-blight-tomato-leaf.jpg"
+    ],
     "symptoms": [
       {
-        "title": "Concentric Rings",
-        "iconName": "circle_outlined",
-        "bullets": ["Target-like spots on lower leaves", "Premature leaf fall"]
+        "title": "Early Symptoms",
+        "iconName": "eco",
+        "bullets": ["Small, dark brown spots on older leaves near the ground", "Spots are circular or irregular in shape"]
+      },
+      {
+        "title": "Progressive Symptoms",
+        "iconName": "spa",
+        "bullets": [
+          "Spots enlarge and develop concentric rings",
+          "Yellow halo forms around the spots",
+          "Lesions may appear on stems near the soil line"
+        ]
+      },
+      {
+        "title": "Advanced Symptoms",
+        "iconName": "warning_amber_rounded",
+        "bullets": ["Entire leaves turn yellow and die", "Sunken spots appear on fruits near the stem end"]
       }
+    ],
+    "howToIdentify": [
+      { "stageNumber": 1, "title": "Early Stage", 
+        "description": "Small dark spots appear on lower, older leaves. " +
+                       "These are usually the first signs of infection." },
+      { "stageNumber": 2, "title": "Developing Stage", 
+        "description": "Spots grow larger and show characteristic concentric rings. " +
+                       "Lower leaves may start yellowing." },
+      { "stageNumber": 3, "title": "Harvest Stage", 
+        "description": "Disease may spread to fruit, causing dark, leathery sunken areas around the stem." }
+    ],
+    "favourableConditions": [
+      { "title": "High Humidity", "description": "Frequent rainfall or heavy dew", "iconName": "water_drop" },
+      { "title": "Warm Temperature", "description": "Optimal development at 24-29°C", "iconName": "thermostat" }
     ],
     "organicTreatments": [
       {
@@ -147,7 +242,7 @@ db.getSiblingDB('CropSecureDB').pests_and_diseases.insertMany([
       }
     ],
     "chemicalTreatments": [],
-    "preventiveMeasures": ["Mulching", "Drip irrigation"]
+    "preventiveMeasures": ["Mulching", "Drip irrigation", "Remove bottom leaves"]
   }
 ]);
 

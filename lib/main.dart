@@ -6,6 +6,9 @@ import 'routes/app_router.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/services/mongodb_service.dart';
+import 'providers/locale_provider.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final getIt = GetIt.instance;
 
@@ -45,6 +48,20 @@ class CropSecureApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
+      // Adding locale support
+      locale: Locale(ref.watch(localeProvider)),
+      supportedLocales: const [
+        Locale('en'),
+        Locale('hi'),
+        Locale('ta'),
+        Locale('mr'),
+        Locale('kn'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routeInformationProvider: router.routeInformationProvider,
       routeInformationParser: router.routeInformationParser,
       routerDelegate: router.routerDelegate,

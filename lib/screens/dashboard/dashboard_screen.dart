@@ -6,6 +6,8 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../providers/plot_provider.dart';
+import '../../core/localization/translation_extension.dart';
+import '../../providers/locale_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -99,7 +101,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 ),
                                 const SizedBox(height: AppSpacing.xs),
                                 Text(
-                                  'Today\'s task',
+                                  'today_task'.tr(ref),
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     color: AppColors.white.withOpacity(0.9),
                                   ),
@@ -132,7 +134,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                           style: AppTextStyles.labelMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          'Switch Plot',
+                                          'switch_plot'.tr(ref),
                                           style: AppTextStyles.bodySmall.copyWith(color: AppColors.white.withOpacity(0.8), fontSize: 10),
                                         ),
                                       ],
@@ -174,7 +176,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: tasks.isEmpty 
-                              ? [ _buildTaskChip('No tasks scheduled for today') ]
+                              ? [ _buildTaskChip('no_tasks'.tr(ref)) ]
                               : tasks.map((task) => Padding(
                                   padding: const EdgeInsets.only(right: AppSpacing.md),
                                   child: _buildTaskChip(task['title'] ?? 'Task'),
@@ -505,7 +507,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'What would you like to do?',
+          'what_would_you_do'.tr(ref),
           style: AppTextStyles.headingSmall.copyWith(
             color: AppColors.textPrimary,
           ),
@@ -615,7 +617,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your Farm at a Glance',
+            'farm_glance'.tr(ref),
             style: AppTextStyles.headingSmall.copyWith(
               color: AppColors.white,
             ),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import 'models/disease_details_model.dart';
+import '../../core/localization/translation_extension.dart';
+import '../../providers/locale_provider.dart';
 import 'package:go_router/go_router.dart';
 
-class DiseaseDetailsScreen extends StatefulWidget {
+class DiseaseDetailsScreen extends ConsumerStatefulWidget {
   final DiseaseDetailsModel data;
 
   const DiseaseDetailsScreen({
@@ -13,10 +16,10 @@ class DiseaseDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<DiseaseDetailsScreen> createState() => _DiseaseDetailsScreenState();
+  ConsumerState<DiseaseDetailsScreen> createState() => _DiseaseDetailsScreenState();
 }
 
-class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
+class _DiseaseDetailsScreenState extends ConsumerState<DiseaseDetailsScreen> {
   String _bottomSectionState = 'causes';
 
   IconData _getIconForSymptom(String iconName) {
@@ -24,6 +27,9 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
       case 'grass': return Icons.grass;
       case 'eco': return Icons.eco;
       case 'spa': return Icons.spa;
+      case 'early symptoms': return Icons.eco;
+      case 'progressive symptoms': return Icons.spa;
+      case 'advanced symptoms': return Icons.warning_amber_rounded;
       default: return Icons.warning_amber_rounded;
     }
   }
@@ -33,6 +39,9 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
       case 'grass': return Colors.lightGreen;
       case 'eco': return Colors.green;
       case 'spa': return Colors.amber;
+      case 'early symptoms': return Colors.green;
+      case 'progressive symptoms': return Colors.orange;
+      case 'advanced symptoms': return Colors.red;
       default: return Colors.orange;
     }
   }
@@ -70,108 +79,36 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
             
             // Dynamic Images Carousel
             if (data.images.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: SizedBox(
-                  height: 220,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: data.images.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(right: index == data.images.length - 1 ? 0 : 12.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            data.images[index],
-                            height: 220,
-                            width: data.images.length > 1 ? MediaQuery.of(context).size.width * 0.7 : MediaQuery.of(context).size.width - 40,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, e, s) => Container(
-                              width: 140, height: 220, color: Colors.grey[200], child: const Icon(Icons.image, size: 64, color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+              _buildImageCarousel(data.images),
             if (data.images.isNotEmpty) const SizedBox(height: 24),
             
-            // Symptoms Title
-            Text(
-              'Symptoms',
-              style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${data.diseaseName} – Symptoms in ${data.cropAffected}',
-              style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
+            // Symptoms Section
+            _buildSymptomsSection(data),
             
-            // Dynamic Symptom Sections
-            if (data.symptoms.isNotEmpty)
-              ...data.symptoms.map((symptom) => _buildSymptomSection(
-                icon: _getIconForSymptom(symptom.iconName), 
-                iconColor: _getColorForSymptom(symptom.iconName),
-                title: symptom.title, 
-                bullets: symptom.bullets,
-              )),
-            if (data.symptoms.isEmpty)
-              Text('No specific symptoms recorded.', style: AppTextStyles.bodyMedium),
+            const SizedBox(height: 32),
             
-            const SizedBox(height: 16),
-            Text('More info', style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 4),
-            Text(
-              'Scientific name: ${data.scientificName.isNotEmpty ? data.scientificName : data.causalOrganism}',
-              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w500),
-            ),
+            // What is [Disease]?
+            _buildWhatIsSection(data),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             
+            // Scientific Classification Section
+            _buildClassificationTable(data),
+            
+            const SizedBox(height: 32),
+            
+            // How to Identify Section
+            _buildHowToIdentify(data),
+            
+            const SizedBox(height: 32),
+            
+            // Favourable Conditions Section
+            _buildFavourableConditions(data),
+            
+            const SizedBox(height: 32),
+
             // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _bottomSectionState == 'treat' ? const Color(0xFF558B42) : Colors.grey[300],
-                      foregroundColor: _bottomSectionState == 'treat' ? AppColors.white : AppColors.textPrimary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _bottomSectionState = 'treat';
-                      });
-                    },
-                    child: const Text('Treat now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _bottomSectionState == 'prevent' ? const Color(0xFF558B42) : Colors.grey[300],
-                      foregroundColor: _bottomSectionState == 'prevent' ? AppColors.white : AppColors.textPrimary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _bottomSectionState = 'prevent';
-                      });
-                    },
-                    child: const Text('Prevent', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  ),
-                ),
-              ],
-            ),
+            _buildActionButtons(),
             
             const SizedBox(height: 32),
             
@@ -187,6 +124,359 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImageCarousel(List<String> images) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: SizedBox(
+            height: 220,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: images.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.only(right: index == images.length - 1 ? 0 : 12.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      images[index],
+                      height: 220,
+                      width: images.length > 1 ? MediaQuery.of(context).size.width * 0.8 : MediaQuery.of(context).size.width - 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, e, s) => Container(
+                        width: MediaQuery.of(context).size.width - 40, 
+                        height: 220, 
+                        color: Colors.grey[200], 
+                        child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        if (images.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: images.asMap().entries.map((entry) {
+                return Container(
+                  width: 8.0,
+                  height: 8.0,
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primaryGreen.withOpacity(0.5),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSymptomsSection(DiseaseDetailsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'symptoms'.tr(ref),
+          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${data.diseaseName} – Symptoms in ${data.cropAffected}',
+          style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(height: 16),
+        if (data.symptoms.isNotEmpty)
+          ...data.symptoms.map((symptom) => _buildSymptomSection(
+            icon: _getIconForSymptom(symptom.title), 
+            iconColor: _getColorForSymptom(symptom.title),
+            title: symptom.title, 
+            bullets: symptom.bullets,
+          ))
+        else
+          Text('No specific symptoms recorded.', style: AppTextStyles.bodyMedium),
+      ],
+    );
+  }
+
+  Widget _buildWhatIsSection(DiseaseDetailsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'What is ${data.diseaseName}?',
+          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                data.description.isNotEmpty 
+                  ? data.description 
+                  : '${data.diseaseName} is a ${data.diseaseType.toLowerCase()} disease that affects ${data.cropAffected.toLowerCase()}.',
+                style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
+              ),
+            ),
+            if (data.images.isNotEmpty) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    data.images.first,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildClassificationTable(DiseaseDetailsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'scientific_classification'.tr(ref),
+          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
+            children: [
+              _buildClassificationRow('Disease', data.diseaseName), // disease name is data driven
+              _buildClassificationRow('Crop Affected', data.cropAffected), 
+              _buildClassificationRow('Disease Type', '${data.diseaseType} Disease'),
+              _buildClassificationRow('causal_organism'.tr(ref), data.causalOrganism),
+              _buildClassificationRow('affected_part'.tr(ref), data.affectedPart),
+              _buildClassificationRow('primary_spread'.tr(ref), data.primarySpread),
+              _buildClassificationRow('severity'.tr(ref), data.severityLevel, isLast: true),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildClassificationRow(String label, String value, {bool isLast = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: isLast ? null : Border(bottom: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey[600])),
+          Flexible(
+            child: Text(
+              value.isNotEmpty ? value : 'N/A',
+              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHowToIdentify(DiseaseDetailsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'How to Identify?',
+          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        if (data.identifyStages.isEmpty)
+          Text('Identification stages not available.', style: AppTextStyles.bodyMedium)
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.9,
+            ),
+            itemCount: data.identifyStages.length,
+            itemBuilder: (context, index) {
+              final stage = data.identifyStages[index];
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green.shade100, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          topRight: Radius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        '${stage.stageNumber} ${stage.title}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade900,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        stage.description,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: 11, 
+                          height: 1.5,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildFavourableConditions(DiseaseDetailsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Favourable Conditions',
+          style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        if (data.favourableConditions.isEmpty)
+          Text('Detailed conditions not available.', style: AppTextStyles.bodyMedium)
+        else
+          ...data.favourableConditions.map((condition) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: condition.getColor(),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: condition.getColor().withOpacity(0.8)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(condition.getIcon(), color: Colors.black87, size: 20),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        condition.title,
+                        style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        condition.description,
+                        style: AppTextStyles.bodySmall.copyWith(color: Colors.black54, height: 1.3),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _bottomSectionState == 'treat' ? const Color(0xFF558B42) : Colors.grey[300],
+              foregroundColor: _bottomSectionState == 'treat' ? AppColors.white : AppColors.textPrimary,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: () {
+              setState(() {
+                _bottomSectionState = 'treat';
+              });
+            },
+            child: const Text('Treat now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _bottomSectionState == 'prevent' ? const Color(0xFF558B42) : Colors.grey[300],
+              foregroundColor: _bottomSectionState == 'prevent' ? AppColors.white : AppColors.textPrimary,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: () {
+              setState(() {
+                _bottomSectionState = 'prevent';
+              });
+            },
+            child: const Text('Prevent', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ),
+      ],
     );
   }
 
@@ -245,7 +535,7 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 0.82,
+              childAspectRatio: 0.75,
             ),
             itemCount: organic.length,
             shrinkWrap: true,
@@ -255,7 +545,8 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
               return _buildTreatmentCard(
                 title: t.title,
                 icon: Icons.eco,
-                color: const Color(0xFFEFF5CA), 
+                color: const Color(0xFFF9FBE7), 
+                iconColor: Colors.green.shade700,
                 type: t.type,
                 use: t.use,
                 dose: t.dose,
@@ -277,7 +568,7 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 0.82,
+              childAspectRatio: 0.75,
             ),
             itemCount: chemical.length,
             shrinkWrap: true,
@@ -288,6 +579,7 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
                 title: t.title,
                 icon: Icons.science_outlined,
                 color: const Color(0xFFE3F2FD), 
+                iconColor: Colors.blue.shade700,
                 type: t.type,
                 use: t.use,
                 dose: t.dose,
@@ -310,16 +602,18 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
     required String title,
     required IconData icon,
     required Color color,
+    required Color iconColor,
     required String type,
     required String use,
     required String dose,
     required String benefit,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: iconColor.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,38 +621,48 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 16, color: Colors.green[800]),
-              const SizedBox(width: 4),
+              Icon(icon, size: 18, color: iconColor),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, height: 1.2),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    fontSize: 13, 
+                    height: 1.2,
+                    color: Colors.black.withOpacity(0.8),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          _buildTreatmentBullet('Type: $type'),
-          _buildTreatmentBullet('Use: $use'),
-          _buildTreatmentBullet('Dose: $dose'),
-          _buildTreatmentBullet('Benefit: $benefit'),
+          const SizedBox(height: 12),
+          _buildTreatmentBullet('Type', type),
+          _buildTreatmentBullet('Use', use),
+          _buildTreatmentBullet('Dose', dose),
+          _buildTreatmentBullet('Benefit', benefit),
         ],
       ),
     );
   }
 
-  Widget _buildTreatmentBullet(String text) {
+  Widget _buildTreatmentBullet(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
+      padding: const EdgeInsets.only(bottom: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('•', style: TextStyle(fontSize: 10, color: Colors.black87)),
-          const SizedBox(width: 4),
+          Text('•', style: TextStyle(fontSize: 12, color: Colors.black.withOpacity(0.5))),
+          const SizedBox(width: 6),
           Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 10, height: 1.2),
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 11, height: 1.3, color: Colors.black87),
+                children: [
+                  TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+                  TextSpan(text: value),
+                ],
+              ),
             ),
           ),
         ],

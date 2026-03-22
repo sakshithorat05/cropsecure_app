@@ -8,6 +8,8 @@ import '../../core/theme/app_spacing.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/plot_provider.dart';
 import '../../core/services/database_service.dart';
+import '../../providers/locale_provider.dart';
+import '../../core/localization/translation_extension.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -99,7 +101,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Farm Details', 
+                          'profile'.tr(ref), 
                           style: AppTextStyles.headingMedium.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
@@ -165,8 +167,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         _buildDivider(),
                         _buildSettingTile(
                           icon: Icons.language,
-                          title: 'Language',
-                          onTap: () {},
+                          title: 'language'.tr(ref),
+                          onTap: () => _showLanguageDialog(context, ref),
                         ),
                         _buildDivider(),
                         _buildSettingTile(
@@ -264,6 +266,42 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           )
         ),
       ],
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('select_language'.tr(ref)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLanguageOption(context, ref, 'english'.tr(ref), 'en'),
+            _buildLanguageOption(context, ref, 'hindi'.tr(ref), 'hi'),
+            _buildLanguageOption(context, ref, 'tamil'.tr(ref), 'ta'),
+            _buildLanguageOption(context, ref, 'marathi'.tr(ref), 'mr'),
+            _buildLanguageOption(context, ref, 'kannada'.tr(ref), 'kn'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(BuildContext context, WidgetRef ref, String label, String code) {
+    final currentLocale = ref.watch(localeProvider);
+    return ListTile(
+      title: Text(label),
+      trailing: currentLocale == code ? const Icon(Icons.check, color: AppColors.primaryGreen) : null,
+      onTap: () {
+        ref.read(localeProvider.notifier).setLocale(code);
+        Navigator.pop(context);
+        // Force state refresh
+        setState(() {
+          _profileFuture = _db.getUserProfile(_tempUid);
+        });
+      },
     );
   }
 }

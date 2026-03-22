@@ -14,6 +14,12 @@ class DiseaseDetailsModel {
   final List<DiseaseTreatmentModel> organicTreatments;
   final List<DiseaseTreatmentModel> chemicalTreatments;
   final List<String> preventiveMeasures;
+  final String description;
+  final String affectedPart;
+  final String primarySpread;
+  final String severityLevel;
+  final List<FavourableConditionModel> favourableConditions;
+  final List<IdentifyStageModel> identifyStages;
 
   DiseaseDetailsModel({
     required this.id,
@@ -29,6 +35,12 @@ class DiseaseDetailsModel {
     required this.organicTreatments,
     required this.chemicalTreatments,
     required this.preventiveMeasures,
+    this.description = '',
+    this.affectedPart = '',
+    this.primarySpread = '',
+    this.severityLevel = '',
+    this.favourableConditions = const [],
+    this.identifyStages = const [],
   });
 
   factory DiseaseDetailsModel.fromJson(Map<String, dynamic>? jsonInput, String documentId) {
@@ -60,6 +72,16 @@ class DiseaseDetailsModel {
           : [],
       chemicalTreatments: json['chemicalTreatments'] != null 
           ? (json['chemicalTreatments'] as List).map((i) => DiseaseTreatmentModel.fromJson(i as Map<String, dynamic>? ?? {})).toList() 
+          : [],
+      description: json['description'] as String? ?? '',
+      affectedPart: json['affectedPart'] as String? ?? '',
+      primarySpread: json['primarySpread'] as String? ?? '',
+      severityLevel: json['severityLevel'] as String? ?? '',
+      favourableConditions: json['favourableConditions'] != null
+          ? (json['favourableConditions'] as List).map((i) => FavourableConditionModel.fromJson(i as Map<String, dynamic>? ?? {})).toList()
+          : [],
+      identifyStages: json['howToIdentify'] != null
+          ? (json['howToIdentify'] as List).map((i) => IdentifyStageModel.fromJson(i as Map<String, dynamic>? ?? {})).toList()
           : [],
     );
   }
@@ -132,28 +154,62 @@ class DiseaseTreatmentModel {
   }
 }
 
-class FavourableCondition {
+class FavourableConditionModel {
   final String title;
   final String description;
-  final IconData icon;
-  final Color backgroundColor;
+  final String iconName;
 
-  FavourableCondition({
+  FavourableConditionModel({
     required this.title,
     required this.description,
-    required this.icon,
-    required this.backgroundColor,
+    required this.iconName,
   });
+
+  factory FavourableConditionModel.fromJson(Map<String, dynamic> json) {
+    return FavourableConditionModel(
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      iconName: json['iconName'] ?? '',
+    );
+  }
+
+  IconData getIcon() {
+    switch (iconName.toLowerCase()) {
+      case 'water_drop': return Icons.water_drop;
+      case 'thermostat': return Icons.thermostat;
+      case 'air': return Icons.air;
+      case 'cloudy_snowing': return Icons.cloudy_snowing;
+      default: return Icons.wb_sunny;
+    }
+  }
+
+  Color getColor() {
+    switch (iconName.toLowerCase()) {
+      case 'water_drop': return const Color(0xFFE3F2FD); // Very Light Blue
+      case 'thermostat': return const Color(0xFFFFF3E0); // Very Light Orange
+      case 'air': return const Color(0xFFF5F5F5);        // Very Light Grey
+      case 'cloudy_snowing': return const Color(0xFFE1F5FE); // Light Cyan
+      default: return Colors.blueGrey.shade50;
+    }
+  }
 }
 
-class IdentifyStage {
+class IdentifyStageModel {
   final int stageNumber;
   final String title;
   final String description;
 
-  IdentifyStage({
+  IdentifyStageModel({
     required this.stageNumber,
     required this.title,
     required this.description,
   });
+
+  factory IdentifyStageModel.fromJson(Map<String, dynamic> json) {
+    return IdentifyStageModel(
+      stageNumber: json['stageNumber'] ?? 0,
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+    );
+  }
 }

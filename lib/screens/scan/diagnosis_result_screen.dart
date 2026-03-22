@@ -221,19 +221,45 @@ class DiagnosisResultScreen extends ConsumerWidget {
                             onPressed: () {
                               final mockDiseaseData = DiseaseDetailsModel(
                                 id: 'leaf_blight_id',
-                                cropAffected: 'Tomato',
+                                cropAffected: 'Jasmine',
                                 diseaseName: result.diseaseName,
                                 diseaseType: 'Fungal',
-                                causalOrganism: 'Fungus',
-                                scientificName: 'Exserohilum turcicum',
-                                stages: ['Seedling', 'Vegetative'],
-                                images: [],
+                                causalOrganism: 'Alternaria alternata / Cercospora jasminicola',
+                                scientificName: 'Alternaria alternata / Cercospora jasminicola',
+                                description: 'Leaf blight disease of jasmine is a fungal disease that affects the leaves, causing dark lesions and drying. It reduces photosynthetic activity, weakens plant growth, and lowers flower yield and quality.',
+                                affectedPart: 'Leaves',
+                                primarySpread: 'Airborne spores, rain splash',
+                                severityLevel: 'Medium to High',
+                                stages: ['Early', 'Developing'],
+                                images: ['https://img.freepik.com/free-photo/damaged-leaves-with-spots_23-2149174021.jpg'],
                                 symptoms: [
                                   DiseaseSymptomModel(
-                                    title: 'Leaf Symptoms',
+                                    title: 'Early Symptoms',
                                     iconName: 'eco',
-                                    bullets: ['Small, water-soaked spots on leaves'],
+                                    bullets: ['Small water-soaked or pale brown spots appear on leaves', 'Spots usually start at leaf tips or margins'],
                                   ),
+                                  DiseaseSymptomModel(
+                                    title: 'Progressive Symptoms',
+                                    iconName: 'spa',
+                                    bullets: ['Spots increase in size and number', 'Lesions become dark brown to black'],
+                                  ),
+                                  DiseaseSymptomModel(
+                                    title: 'Advanced Symptoms',
+                                    iconName: 'warning_amber_rounded',
+                                    bullets: ['Large portions of the leaf become dry and scorched', 'Leaves turn yellow -> brown -> dry'],
+                                  ),
+                                ],
+                                identifyStages: [
+                                  IdentifyStageModel(stageNumber: 1, title: 'Early Stage', description: 'Small, water-soaked light brown spots appear first on older leaves.'),
+                                  IdentifyStageModel(stageNumber: 2, title: 'Developing Stage', description: 'Spots enlarge with target-like rings, may merge into brown patches.'),
+                                  IdentifyStageModel(stageNumber: 3, title: 'Advanced Stage', description: 'Leaves turn brown, dry, and drop; flower buds may discolor.'),
+                                  IdentifyStageModel(stageNumber: 4, title: 'Severe Stage', description: 'Most leaves affected or fallen. Stems may show dark lesions.'),
+                                ],
+                                favourableConditions: [
+                                  FavourableConditionModel(title: 'High Humidity', description: 'Relative humidity above 70-80%', iconName: 'water_drop'),
+                                  FavourableConditionModel(title: 'Warm Temperature', description: 'Ideal range 25-30°C', iconName: 'thermostat'),
+                                  FavourableConditionModel(title: 'Poor Air Circulation', description: 'Dense planting or overgrown plants', iconName: 'air'),
+                                  FavourableConditionModel(title: 'Frequent Rain', description: 'Continuous rainfall or overhead irrigation', iconName: 'cloudy_snowing'),
                                 ],
                                 causes: ['High humidity', 'Poor air circulation'],
                                 organicTreatments: [

@@ -25,37 +25,46 @@
 // Use clean UI matching modern mobile design.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_colors.dart';
+import '../../providers/locale_provider.dart';
 
-class LanguageSelectionScreen extends StatefulWidget {
+class LanguageSelectionScreen extends ConsumerStatefulWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  ConsumerState<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
 }
 
-class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
-  final List<String> _languages = [
-    'English',
-    'हिंदी',
-    'मराठी',
-    'தமிழ்',
-    'ಕನ್ನಡ',
-    'മലയാളം',
+class _LanguageSelectionScreenState extends ConsumerState<LanguageSelectionScreen> {
+  final List<Map<String, String>> _languages = [
+    {'name': 'English', 'code': 'en'},
+    {'name': 'हिंदी', 'code': 'hi'},
+    {'name': 'मराठी', 'code': 'mr'},
+    {'name': 'தமிழ்', 'code': 'ta'},
+    {'name': 'ಕನ್ನಡ', 'code': 'kn'},
+    {'name': 'മലയാളം', 'code': 'ml'},
   ];
 
-  int selectedIndex = 0;
+  late String selectedCode;
 
-  void _onTap(int index) {
+  @override
+  void initState() {
+    super.initState();
+    selectedCode = 'en'; // Default
+  }
+
+  void _onTap(String code) {
     setState(() {
-      selectedIndex = index;
+      selectedCode = code;
     });
   }
 
   void _onContinue() {
+    ref.read(localeProvider.notifier).setLocale(selectedCode);
     context.go('/auth/login');
   }
 
@@ -65,54 +74,92 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 40),
               Text(
                 'Select Your Language',
-                style: AppTextStyles.displayMedium,
+                style: AppTextStyles.displayMedium.copyWith(
+                  color: AppColors.primaryGreen, 
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
+              Text(
+                'Choose your preferred language to continue',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 40),
               Expanded(
                 child: ListView.separated(
                   padding: EdgeInsets.zero,
                   itemCount: _languages.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
-                    final bool selected = index == selectedIndex;
+                    final lang = _languages[index];
+                    final bool selected = lang['code'] == selectedCode;
                     return GestureDetector(
-                      onTap: () => _onTap(index),
+                      onTap: () => _onTap(lang['code']!),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                          horizontal: 20,
+                          vertical: 18,
                         ),
                         decoration: BoxDecoration(
-                          color: selected ? AppColors.primaryGreen : AppColors.backgroundLight,
-                          borderRadius: BorderRadius.circular(12),
+                          color: selected ? AppColors.primaryGreen : Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: selected ? AppColors.primaryGreen : AppColors.primaryGreen.withOpacity(0.15),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          _languages[index],
-                          style: selected
-                              ? AppTextStyles.bodyLarge.copyWith(color: AppColors.white)
-                              : AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              lang['name']!,
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                color: selected ? Colors.white : AppColors.textPrimary,
+                                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                              ),
+                            ),
+                            if (selected)
+                              const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                          ],
                         ),
                       ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               SizedBox(
-                height: 52,
+                height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _onContinue,
-                  child: const Text('Continue'),
+                  child: Text(
+                    'Continue',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
                 ),
               ),
             ],
