@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/product_model.dart';
+import '../core/services/database_service.dart';
 
 class MarketplaceState {
   final int selectedTab;
@@ -42,6 +43,8 @@ class MarketplaceState {
 }
 
 class MarketplaceNotifier extends Notifier<MarketplaceState> {
+  final DatabaseService _db = DatabaseService();
+
   @override
   MarketplaceState build() {
     Future.microtask(() => loadProducts());
@@ -51,95 +54,11 @@ class MarketplaceNotifier extends Notifier<MarketplaceState> {
   Future<void> loadProducts() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      // Simulate network request
-      await Future.delayed(const Duration(milliseconds: 800));
+      final products = await _db.getAllProducts();
       
-      final dummyProducts = [
-        const ProductModel(
-          id: 'p1',
-          name: 'Blue Copper',
-          brandName: 'Brand A',
-          category: 'Fungicide',
-          imageUrls: [],
-          pricePerUnit: 550,
-          unitLabel: 'per kg',
-          weightOrVolume: 1,
-          weightUnit: 'kg',
-          inStock: true,
-          rating: 4.5,
-          reviewCount: 320,
-          alsoKnownAs: ['Copper Oxychloride 50% WP'],
-          targetDiseases: ['Leaf Spot', 'Canker', 'Late Blight'],
-          safetyInstructions: 'Use gloves and mask during application. Avoid spraying on windy days.',
-          dosagePerAcre: 2.5,
-          dosageUnit: 'kg',
-          relatedProductIds: ['p2', 'p3'],
-        ),
-        const ProductModel(
-          id: 'p2',
-          name: 'Trichoderma',
-          brandName: 'Brand B',
-          category: 'Fungicide',
-          imageUrls: [],
-          pricePerUnit: 250,
-          unitLabel: 'per kg',
-          weightOrVolume: 1,
-          weightUnit: 'kg',
-          inStock: true,
-          rating: 4.8,
-          reviewCount: 150,
-          alsoKnownAs: ['Trichoderma Viride Powder'],
-          targetDiseases: ['Root Rot', 'Wilt'],
-          safetyInstructions: 'Keep away from direct sunlight. Do not mix with chemical fungicides.',
-          dosagePerAcre: 1.0,
-          dosageUnit: 'kg',
-          relatedProductIds: ['p1'],
-        ),
-        const ProductModel(
-          id: 'p3',
-          name: 'Psuedomonas',
-          brandName: 'Brand C',
-          category: 'Fungicide',
-          imageUrls: [],
-          pricePerUnit: 250,
-          unitLabel: 'per kg',
-          weightOrVolume: 1,
-          weightUnit: 'kg',
-          inStock: false,
-          rating: 4.3,
-          reviewCount: 89,
-          alsoKnownAs: ['Pseudomonas fluorescens'],
-          targetDiseases: ['Blight', 'Wilt'],
-          safetyInstructions: 'Store in cool place. Use within 6 months of manufacture.',
-          dosagePerAcre: 1.5,
-          dosageUnit: 'kg',
-          relatedProductIds: ['p2'],
-        ),
-        const ProductModel(
-          id: 'f1',
-          name: 'Urea',
-          brandName: 'Brand X',
-          category: 'Fertiliser',
-          imageUrls: [],
-          pricePerUnit: 250,
-          unitLabel: 'per 50kg bag',
-          weightOrVolume: 50,
-          weightUnit: 'kg',
-          inStock: true,
-          rating: 4.6,
-          reviewCount: 500,
-          alsoKnownAs: ['Nitrogen 46%'],
-          targetDiseases: [],
-          safetyInstructions: 'Apply to soil, avoid direct leaf contact.',
-          dosagePerAcre: 50.0,
-          dosageUnit: 'kg',
-          relatedProductIds: [],
-        ),
-      ];
-
       state = state.copyWith(
         isLoading: false,
-        allProducts: dummyProducts,
+        allProducts: products,
       );
       _applyFilters();
     } catch (e) {

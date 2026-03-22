@@ -262,7 +262,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
-                                  Text('Recommended Dosage: 2gms/liter of water', style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary, fontSize: 9)),
+                                   Text('Recommended Dosage: ${product.dosagePerAcre} ${product.dosageUnit} per acre', style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary, fontSize: 9)),
                                 ],
                               ),
                             ),
@@ -282,14 +282,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 children: [
                                   Text('Target Diseases', style: AppTextStyles.headingMedium.copyWith(fontSize: 14)),
                                   const SizedBox(height: AppSpacing.md),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _buildMockDiseaseAvatar('Leaf Spot', Icons.eco),
-                                      _buildMockDiseaseAvatar('Canker', Icons.coronavirus),
-                                      _buildMockDiseaseAvatar('Leaf Blight', Icons.yard),
-                                    ],
-                                  ),
+                                  if (product.targetDiseases.isEmpty) 
+                                    Text('General protection', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary))
+                                  else
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: product.targetDiseases.take(3).map((d) => _buildMockDiseaseAvatar(d, Icons.eco)).toList(),
+                                    ),
                                 ],
                               ),
                             ),
@@ -328,9 +327,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        _buildBullet('Use gloves and mask during application.'),
-                                        _buildBullet('Do not pick flowers for 48 hours after spraying.'),
-                                        _buildBullet('Keep away from children and pets.'),
+                                        ...product.safetyInstructions.split('.').where((s) => s.trim().isNotEmpty).map((s) => _buildBullet(s.trim()))
                                       ],
                                     ),
                                   ),

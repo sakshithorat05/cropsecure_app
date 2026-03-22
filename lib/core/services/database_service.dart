@@ -2,7 +2,7 @@ import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'mongodb_service.dart';
 import '../../screens/treatment/models/disease_details_model.dart';
 import '../../screens/profile/models/farm_history_model.dart';
-import '../../screens/marketplace/models/product_model.dart';
+import '../../models/product_model.dart';
 import '../../screens/profile/models/purchase_model.dart';
 import '../../../providers/plot_provider.dart';
 
@@ -149,7 +149,7 @@ class DatabaseService {
   Future<List<ProductModel>> getAllProducts() async {
     try {
       final results = await productsCollection.find().toList();
-      return results.map((map) => ProductModel.fromMap(map)).toList();
+      return results.map((map) => ProductModel.fromMap(map, map['_id'].toHexString())).toList();
     } catch (e) {
       throw Exception('Failed to get products: $e');
     }

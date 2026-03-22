@@ -1,21 +1,21 @@
 /**
- * MONGODB SEED SCRIPT: CropSecure (Index-Safe Version)
+ * MONGODB SEED SCRIPT: CropSecure (Indestructible & Paste-Safe)
  * Run this in your MongoDB Atlas 'mongosh' or Compass 'MDB Shell'
  */
 
-const database = db.getSiblingDB('CropSecureDB');
+// We use direct db.getSiblingDB calls everywhere for 100% paste safety.
 
-// --- CLEANUP INDEXES (Required to fix the Geo Key error) ---
+// --- CLEANUP INDEXES ---
 print("🧹 Cleaning up old indexes...");
 try {
-    database.plots.dropIndexes(); // This removes the problematic geo index
+    db.getSiblingDB('CropSecureDB').plots.dropIndexes();
 } catch (e) {
     print("No indexes to drop or collection doesn't exist yet.");
 }
 
 // --- 1. USER PROFILE ---
-database.users.deleteMany({ "uid": "user_123" });
-database.users.insertOne({
+db.getSiblingDB('CropSecureDB').users.deleteMany({ "uid": "user_123" });
+db.getSiblingDB('CropSecureDB').users.insertOne({
   "uid": "user_123",
   "name": "Sakshi Thorat",
   "phone": "9876543210",
@@ -43,8 +43,8 @@ database.users.insertOne({
 });
 
 // --- 2. PLOTS ---
-database.plots.deleteMany({ "ownerId": "user_123" });
-database.plots.insertMany([
+db.getSiblingDB('CropSecureDB').plots.deleteMany({ "ownerId": "user_123" });
+db.getSiblingDB('CropSecureDB').plots.insertMany([
   {
     "ownerId": "user_123",
     "surveyNo": "124/A",
@@ -76,8 +76,8 @@ database.plots.insertMany([
 ]);
 
 // --- 3. PESTS & DISEASES ---
-database.pests_and_diseases.deleteMany({});
-database.pests_and_diseases.insertMany([
+db.getSiblingDB('CropSecureDB').pests_and_diseases.deleteMany({});
+db.getSiblingDB('CropSecureDB').pests_and_diseases.insertMany([
   {
     "cropAffected": "Jasmine",
     "diseaseName": "Leaf Blight",
@@ -152,16 +152,16 @@ database.pests_and_diseases.insertMany([
 ]);
 
 // --- 4. DASHBOARD REMINDERS ---
-database.reminders.deleteMany({ "uid": "user_123" });
-database.reminders.insertMany([
+db.getSiblingDB('CropSecureDB').reminders.deleteMany({ "uid": "user_123" });
+db.getSiblingDB('CropSecureDB').reminders.insertMany([
   { "uid": "user_123", "title": "Spray scheduled 8 PM", "dueDate": ISODate("2024-03-22T20:00:00Z") },
   { "uid": "user_123", "title": "Check soil moisture level", "dueDate": ISODate("2024-03-23T08:00:00Z") },
   { "uid": "user_123", "title": "Market fertilizer check", "dueDate": ISODate("2024-03-23T10:00:00Z") }
 ]);
 
 // --- 5. WEATHER LOGS ---
-database.weather_logs.deleteMany({});
-database.weather_logs.insertOne({
+db.getSiblingDB('CropSecureDB').weather_logs.deleteMany({});
+db.getSiblingDB('CropSecureDB').weather_logs.insertOne({
   "humidity": "Normal (65%)",
   "temperature": "28.5°C",
   "condition": "Partly Cloudy",
@@ -169,40 +169,75 @@ database.weather_logs.insertOne({
 });
 
 // --- 6. MARKETPLACE PRODUCTS ---
-database.products.deleteMany({});
-database.products.insertMany([
+db.getSiblingDB('CropSecureDB').products.deleteMany({});
+db.getSiblingDB('CropSecureDB').products.insertMany([
   {
-    "name": "Bio-Nitro Fertilizer",
-    "category": "Fertilizers",
-    "price": 450,
-    "stock": 25,
-    "isOrganic": true,
-    "description": "Premium nitrogen-fixing organic fertilizer for leafy crops.",
-    "imageUrl": ""
+    "name": "Blue Copper",
+    "brandName": "Brand A",
+    "category": "Fungicide",
+    "imageUrls": [],
+    "pricePerUnit": 550,
+    "unitLabel": "per kg",
+    "weightOrVolume": 1,
+    "weightUnit": "kg",
+    "inStock": true,
+    "rating": 4.5,
+    "reviewCount": 320,
+    "alsoKnownAs": ["Copper Oxychloride 50% WP"],
+    "targetDiseases": ["Leaf Spot", "Canker", "Late Blight"],
+    "safetyInstructions": "Use gloves and mask during application. " + 
+                          "Avoid spraying on windy days.",
+    "dosagePerAcre": 2.5,
+    "dosageUnit": "kg",
+    "relatedProductIds": [],
+    "description": "Powerful copper-based fungicide for broad-spectrum protection."
   },
   {
-    "name": "Precision Shears",
-    "category": "Tools",
-    "price": 899,
-    "stock": 10,
-    "isOrganic": false,
-    "description": "Ergonomic stainless steel shears for pruning and harvesting.",
-    "imageUrl": ""
+    "name": "Trichoderma",
+    "brandName": "Brand B",
+    "category": "Fungicide",
+    "imageUrls": [],
+    "pricePerUnit": 250,
+    "unitLabel": "per kg",
+    "weightOrVolume": 1,
+    "weightUnit": "kg",
+    "inStock": true,
+    "rating": 4.8,
+    "reviewCount": 150,
+    "alsoKnownAs": ["Trichoderma Viride Powder"],
+    "targetDiseases": ["Root Rot", "Wilt"],
+    "safetyInstructions": "Keep away from direct sunlight. " + 
+                          "Do not mix with chemical fungicides.",
+    "dosagePerAcre": 1.0,
+    "dosageUnit": "kg",
+    "relatedProductIds": [],
+    "description": "Natural bio-fungicide for soil health and root protection."
   },
   {
-    "name": "High-Yield Tomato Seeds",
-    "category": "Seeds",
-    "price": 150,
-    "stock": 100,
-    "isOrganic": true,
-    "description": "Climate-resistant hybrid tomato variety.",
-    "imageUrl": ""
+    "name": "Urea",
+    "brandName": "Brand X",
+    "category": "Fertiliser",
+    "imageUrls": [],
+    "pricePerUnit": 250,
+    "unitLabel": "per 50kg bag",
+    "weightOrVolume": 50,
+    "weightUnit": "kg",
+    "inStock": true,
+    "rating": 4.6,
+    "reviewCount": 500,
+    "alsoKnownAs": ["Nitrogen 46%"],
+    "targetDiseases": [],
+    "safetyInstructions": "Apply to soil, avoid direct leaf contact.",
+    "dosagePerAcre": 50.0,
+    "dosageUnit": "kg",
+    "relatedProductIds": [],
+    "description": "High-nitrogen fertilizer for rapid vegetative growth."
   }
 ]);
 
 // --- 7. FARM HISTORY ---
-database.farm_history.deleteMany({ "uid": "user_123" });
-database.farm_history.insertMany([
+db.getSiblingDB('CropSecureDB').farm_history.deleteMany({ "uid": "user_123" });
+db.getSiblingDB('CropSecureDB').farm_history.insertMany([
   {
     "uid": "user_123",
     "type": "scan",
@@ -222,8 +257,8 @@ database.farm_history.insertMany([
 ]);
 
 // --- 8. PURCHASE HISTORY ---
-database.purchases.deleteMany({ "uid": "user_123" });
-database.purchases.insertMany([
+db.getSiblingDB('CropSecureDB').purchases.deleteMany({ "uid": "user_123" });
+db.getSiblingDB('CropSecureDB').purchases.insertMany([
   {
     "uid": "user_123",
     "productName": "Bio-Nitro Fertilizer",
