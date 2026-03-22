@@ -92,7 +92,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                  path: 'analyzing',
                  builder: (context, state) => const AnalyzingScreen(),
                ),
+               GoRoute(
+                 path: 'result',
+                 builder: (context, state) => const DiagnosisResultScreen(),
+               ),
              ],
+          ),
+          GoRoute(
+             path: '/scan-result',
+             builder: (context, state) => const DiagnosisResultScreen(),
           ),
           GoRoute(
              path: '/disease-details',

@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
 import '../treatment/models/disease_details_model.dart';
+import '../../providers/scan_provider.dart';
 
-class DiagnosisResultScreen extends StatelessWidget {
+class DiagnosisResultScreen extends ConsumerWidget {
   const DiagnosisResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scanState = ref.watch(scanProvider);
+    final result = scanState.result;
+
+    if (result == null) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text('No diagnosis result available', style: AppTextStyles.headingLarge),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/home'),
+                child: const Text('Back to Home'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
@@ -85,7 +111,7 @@ class DiagnosisResultScreen extends StatelessWidget {
                                   children: [
                                     const Icon(Icons.eco, color: AppColors.primaryGreen, size: 20),
                                     const SizedBox(width: 8),
-                                    Text('Disease Name: Leaf Blight', style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold)),
+                                    Text('Disease Name: ${result.diseaseName}', style: AppTextStyles.headingMedium.copyWith(fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
@@ -105,8 +131,8 @@ class DiagnosisResultScreen extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildStatItem('Affected Part:', 'Leaf'),
-                                    _buildStatItemWithBadge('Severity:', 'Medium', AppColors.riskMedium),
-                                    _buildStatItem('Confidence\nScore:', '92%'),
+                                    _buildStatItemWithBadge('Severity:', result.severity, _getSeverityColor(result.severity)),
+                                    _buildStatItem('Confidence\nScore:', '${result.confidenceScore.toStringAsFixed(1)}%'),
                                   ],
                                 ),
                               ],
@@ -124,11 +150,11 @@ class DiagnosisResultScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.alertYellow,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.riskMedium.withOpacity(0.5)),
+                        border: Border.all(color: _getSeverityColor(result.severity).withOpacity(0.5)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.warning_amber_rounded, color: AppColors.riskMedium, size: 30),
+                          Icon(Icons.warning_amber_rounded, color: _getSeverityColor(result.severity), size: 30),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -142,7 +168,7 @@ class DiagnosisResultScreen extends StatelessWidget {
                     
                     const SizedBox(height: 16),
                     Text(
-                      'Leaf Blight detected - Medium severity. Immediate treatment recommended to prevent spread.',
+                      '${result.diseaseName} detected - ${result.severity} severity. ${result.immediateAction}',
                       style: AppTextStyles.bodyMedium,
                     ),
                     
@@ -159,12 +185,12 @@ class DiagnosisResultScreen extends StatelessWidget {
                                 await db.addFarmHistoryLog('user_123', {
                                   'type': 'scan',
                                   'title': 'Scan Result',
-                                  'subtitle': 'Leaf Blight detected',
+                                  'subtitle': '${result.diseaseName} detected',
                                   'imageUrl': null,
                                   'metadata': {
-                                    'disease': 'Leaf Blight',
-                                    'severity': 'Medium',
-                                    'confidence': '92%',
+                                    'disease': result.diseaseName,
+                                    'severity': result.severity,
+                                    'confidence': '${result.confidenceScore.toStringAsFixed(1)}%',
                                   }
                                 });
                                 if (context.mounted) {
@@ -196,7 +222,7 @@ class DiagnosisResultScreen extends StatelessWidget {
                               final mockDiseaseData = DiseaseDetailsModel(
                                 id: 'leaf_blight_id',
                                 cropAffected: 'Tomato',
-                                diseaseName: 'Leaf Blight',
+                                diseaseName: result.diseaseName,
                                 diseaseType: 'Fungal',
                                 causalOrganism: 'Fungus',
                                 scientificName: 'Exserohilum turcicum',
@@ -296,5 +322,18 @@ class DiagnosisResultScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _getSeverityColor(String severity) {
+    switch (severity.toLowerCase()) {
+      case 'low':
+        return AppColors.success;
+      case 'medium':
+        return AppColors.riskMedium;
+      case 'high':
+        return AppColors.error;
+      default:
+        return AppColors.primaryGreen;
+    }
   }
 }

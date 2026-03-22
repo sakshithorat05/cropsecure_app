@@ -1,42 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../providers/scan_provider.dart';
 
-class AnalyzingScreen extends StatefulWidget {
+class AnalyzingScreen extends ConsumerStatefulWidget {
   const AnalyzingScreen({super.key});
 
   @override
-  State<AnalyzingScreen> createState() => _AnalyzingScreenState();
+  ConsumerState<AnalyzingScreen> createState() => _AnalyzingScreenState();
 }
 
-class _AnalyzingScreenState extends State<AnalyzingScreen> {
-  int _currentStep = 0;
-
+class _AnalyzingScreenState extends ConsumerState<AnalyzingScreen> {
   @override
   void initState() {
     super.initState();
-    _startAnalysisSimulation();
-  }
-
-  void _startAnalysisSimulation() async {
-    // Simulate steps processing
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) setState(() => _currentStep = 1);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) setState(() => _currentStep = 2);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) setState(() => _currentStep = 3);
-    
-    // Navigate to results
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      context.go('/scan-result');
-    }
+    // Start analysis on enter
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(scanProvider.notifier).startAnalysis();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final scanState = ref.watch(scanProvider);
+
+    // Listen to success state for navigation
+    ref.listen(scanProvider, (previous, next) {
+      if (next.step == ScanStep.success) {
+        context.go('/home/scan/result');
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -84,11 +80,11 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Column(
                 children: [
-                  _buildStep('Checking disease patterns', _currentStep >= 1),
+                  _buildStep('Checking disease patterns', scanState.step.index >= ScanStep.analyzingStep1.index),
                   const SizedBox(height: 16),
-                  _buildStep('Matching with AI models', _currentStep >= 2),
+                  _buildStep('Matching with AI models', scanState.step.index >= ScanStep.analyzingStep2.index),
                   const SizedBox(height: 16),
-                  _buildStep('Estimating severity', _currentStep >= 3),
+                  _buildStep('Estimating severity', scanState.step.index >= ScanStep.analyzingStep3.index),
                 ],
               ),
             ),
