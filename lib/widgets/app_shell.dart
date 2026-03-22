@@ -42,7 +42,7 @@ class AppShell extends ConsumerWidget {
         backgroundColor: AppColors.primaryGreen,
         elevation: 6,
         shape: const CircleBorder(),
-        onPressed: () => context.push('/home/scan'),
+        onPressed: () => context.go('/home/scan'),
         child: const Icon(
           Icons.qr_code_scanner, // Custom scanner icon
           color: Colors.white,
@@ -52,7 +52,7 @@ class AppShell extends ConsumerWidget {
       bottomNavigationBar: BottomNavbar(
         currentIndex: currentIndex,
         onTap: (index) => _onItemTapped(index, context),
-        onScanTap: () => context.push('/home/scan'),
+        onScanTap: () => context.go('/home/scan'),
       ),
     );
   }

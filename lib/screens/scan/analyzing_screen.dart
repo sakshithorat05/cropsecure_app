@@ -31,7 +31,7 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
     // Navigate to results
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
-      context.pushReplacement('/home/scan/result');
+      context.go('/scan-result');
     }
   }
 
@@ -45,7 +45,12 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
             // Top Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 24,
+                bottom: 24,
+                left: 20,
+                right: 20,
+              ),
               decoration: const BoxDecoration(
                 color: AppColors.primaryGreen,
                 borderRadius: BorderRadius.only(

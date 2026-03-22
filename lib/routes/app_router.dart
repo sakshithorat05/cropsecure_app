@@ -73,6 +73,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
              path: '/home/scan',
              builder: (context, state) => const ScanScreen(),
+             routes: [
+               GoRoute(
+                 path: 'preview',
+                 builder: (context, state) => ScanPreviewScreen(
+                   imagePath: state.extra as String?,
+                 ),
+               ),
+               GoRoute(
+                 path: 'analyzing',
+                 builder: (context, state) => const AnalyzingScreen(),
+               ),
+             ],
           ),
           GoRoute(
              path: '/disease-details',
@@ -92,22 +104,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/home',
                 builder: (context, state) => const DashboardScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'scan/preview',
-                    builder: (context, state) => ScanPreviewScreen(
-                      imagePath: state.extra as String?,
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'scan/analyzing',
-                    builder: (context, state) => const AnalyzingScreen(),
-                  ),
-                  GoRoute(
-                    path: 'scan/result',
-                    builder: (context, state) => const DiagnosisResultScreen(),
-                  ),
-                ],
               ),
               
               // 1. Treatment

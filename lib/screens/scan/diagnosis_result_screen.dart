@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
+import '../treatment/models/disease_details_model.dart';
 
 class DiagnosisResultScreen extends StatelessWidget {
   const DiagnosisResultScreen({super.key});
@@ -11,26 +12,30 @@ class DiagnosisResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryGreen,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: Text('Scan Affected Area', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
+      body: Column(
+        children: [
+          // Top Header
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 24,
+              bottom: 24,
+              left: 20,
+              right: 20,
+            ),
+            decoration: const BoxDecoration(
+              color: AppColors.primaryGreen,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
-              
-              Padding(
+            ),
+            child: Text('Scan Affected Area', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
+          ),
+          
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +182,36 @@ class DiagnosisResultScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              context.push('/treatment/disease/leaf_blight');
+                              final mockDiseaseData = DiseaseDetailsModel(
+                                id: 'leaf_blight_id',
+                                cropAffected: 'Crop',
+                                diseaseName: 'Leaf Blight',
+                                diseaseType: 'Fungal',
+                                causalOrganism: 'Fungus',
+                                scientificName: 'Exserohilum turcicum',
+                                stages: ['Seedling', 'Vegetative'],
+                                images: [],
+                                symptoms: [
+                                  DiseaseSymptomModel(
+                                    title: 'Leaf Symptoms',
+                                    iconName: 'eco',
+                                    bullets: ['Small, water-soaked spots on leaves'],
+                                  ),
+                                ],
+                                causes: ['High humidity', 'Poor air circulation'],
+                                organicTreatments: [
+                                  DiseaseTreatmentModel(
+                                    title: 'Neem Oil Spray',
+                                    type: 'Organic',
+                                    use: 'Spray on leaves',
+                                    dose: '5ml/liter',
+                                    benefit: 'Antifungal properties',
+                                  ),
+                                ],
+                                chemicalTreatments: [],
+                                preventiveMeasures: ['Use disease-free seeds', 'Rotate crops'],
+                              );
+                              context.push('/disease-details', extra: mockDiseaseData);
                             },
                             icon: const Icon(Icons.medical_services, color: AppColors.white, size: 20),
                             label: const Text('View Treatment Plan', 
@@ -202,9 +236,9 @@ class DiagnosisResultScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

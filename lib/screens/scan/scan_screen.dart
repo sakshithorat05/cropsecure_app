@@ -106,34 +106,37 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
           
           // Header Actions
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go('/home');
-                    }
-                  },
-                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black45,
-                    borderRadius: BorderRadius.circular(20),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      debugPrint("X button pressed");
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/home');
+                      }
+                    },
+                    icon: const Icon(Icons.close, color: Colors.white, size: 30),
                   ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.flash_off, color: Colors.white),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        debugPrint("Flash button pressed");
+                      },
+                      icon: const Icon(Icons.flash_off, color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           
@@ -163,7 +166,7 @@ class _ScanScreenState extends State<ScanScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.only(bottom: 40, top: 20),
+              padding: const EdgeInsets.only(bottom: 20, top: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
@@ -171,44 +174,56 @@ class _ScanScreenState extends State<ScanScreen> {
                   colors: [Colors.black.withOpacity(0.7), Colors.transparent],
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Gallery Button
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.photo_library, color: Colors.white, size: 30),
-                  ),
-                  
-                  // Capture Button
-                  GestureDetector(
-                    onTap: _takePicture,
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 55,
-                          height: 55,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Gallery Button
+                    IconButton(
+                      onPressed: () {
+                        debugPrint("Gallery button pressed");
+                      },
+                      icon: const Icon(Icons.photo_library, color: Colors.white, size: 30),
+                    ),
+                    
+                    // Capture Button
+                    GestureDetector(
+                      onTap: () {
+                        debugPrint("Capture button tapped");
+                        _takePicture();
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 4),
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 55,
+                            height: 55,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  
-                  // Flip Camera Button
-                  IconButton(
-                    onPressed: _flipCamera,
-                    icon: const Icon(Icons.flip_camera_ios, color: Colors.white, size: 30),
-                  ),
-                ],
+                    
+                    // Flip Camera Button
+                    IconButton(
+                      onPressed: () {
+                        debugPrint("Flip camera button pressed");
+                        _flipCamera();
+                      },
+                      icon: const Icon(Icons.flip_camera_ios, color: Colors.white, size: 30),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
