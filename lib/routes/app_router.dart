@@ -12,6 +12,7 @@ import '../screens/language/language_selection_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/auth/otp_screen.dart';
+import '../screens/auth/farmer_registration_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/scan/scan_screen.dart';
 import '../screens/scan/scan_preview_screen.dart';
@@ -31,6 +32,8 @@ import '../screens/marketplace/cart_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/farm_history_screen.dart';
 import '../screens/profile/purchase_inputs_screen.dart';
+import '../screens/profile/plot_registration_screen.dart';
+import '../screens/profile/crop_field_registration_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _mainNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'main');
@@ -69,6 +72,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/auth/otp',
             builder: (context, state) => const OTPScreen(),
+          ),
+          GoRoute(
+            path: '/auth/farmer-registration',
+            builder: (context, state) => const FarmerRegistrationScreen(),
           ),
           GoRoute(
              path: '/home/scan',
@@ -191,7 +198,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'purchase-inputs',
                     builder: (context, state) => const PurchaseInputsScreen(),
                   ),
+                  GoRoute(
+                    path: 'register-plot',
+                    builder: (context, state) => const PlotRegistrationScreen(),
+                  ),
                 ],
+              ),
+              GoRoute(
+                path: '/crop-registration/:plotId',
+                builder: (context, state) => CropFieldRegistrationScreen(
+                  plotId: state.pathParameters['plotId']!,
+                ),
               ),
             ],
           ),

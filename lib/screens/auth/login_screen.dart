@@ -82,7 +82,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Center(
                 child: GestureDetector(
-                  onTap: () => context.go('/auth/signup'),
+                  onTap: () => context.go('/auth/farmer-registration'),
                   child: Text('New user? Sign Up', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primaryGreen)),
                 ),
               ),

@@ -143,6 +143,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         _buildDivider(),
                         _buildSettingTile(
+                          icon: Icons.landscape_outlined,
+                          title: 'Register New Plot',
+                          onTap: () => context.push('/profile/register-plot'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
                           icon: Icons.shopping_bag_outlined,
                           title: 'Purchase History',
                           onTap: () => context.push('/profile/purchase-inputs'),

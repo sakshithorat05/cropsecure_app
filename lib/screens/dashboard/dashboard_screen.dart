@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../providers/plot_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -35,6 +36,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activePlot = ref.watch(activePlotProvider);
+    final allPlots = ref.watch(plotsProvider);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>>(
@@ -49,120 +53,160 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             'recoveryRate': '0%',
           };
 
-          return Container(
-            decoration: const BoxDecoration(),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Green Header Section
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryGreen,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Green Header Section
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryGreen,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      80,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Welcome Header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome, $userName.',
+                                  style: AppTextStyles.displayMedium.copyWith(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  'Today\'s task',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Plot Switcher
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.white.withOpacity(0.3)),
+                              ),
+                              child: InkWell(
+                                onTap: () => _showPlotSwitcher(context, ref, allPlots),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.landscape, color: AppColors.white, size: 20),
+                                    const SizedBox(width: 8),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          activePlot?.surveyNo ?? 'No Plot',
+                                          style: AppTextStyles.labelMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          'Switch Plot',
+                                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.white.withOpacity(0.8), fontSize: 10),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.keyboard_arrow_down, color: AppColors.white, size: 18),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      padding: EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        80,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Welcome Header
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Welcome, $userName.',
-                                    style: AppTextStyles.displayMedium.copyWith(
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: AppSpacing.xs),
-                                  Text(
-                                    'Today\'s task',
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.white.withAlpha(230),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(AppSpacing.sm),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [AppColors.softShadow],
-                                ),
-                                child: const Icon(
-                                  Icons.wb_cloudy,
-                                  color: AppColors.primaryGreen,
-                                  size: 28,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: AppSpacing.lg),
-                          // Today's Tasks
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                        const SizedBox(height: AppSpacing.lg),
+                        // Current Active Plot Summary
+                        if (activePlot != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Row(
                               children: [
-                                _buildTaskChip('Spray scheduled 8 PM'),
-                                SizedBox(width: AppSpacing.md),
-                                _buildTaskChip('Reason after rainfall'),
-                                SizedBox(width: AppSpacing.md),
-                                _buildTaskChip('Fertilizer due tomorrow'),
+                                const Icon(Icons.info_outline, color: AppColors.white, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Active: ${activePlot.cropName} (${activePlot.variety}) - ${activePlot.area} ${activePlot.unit}',
+                                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.white, fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        const SizedBox(height: AppSpacing.lg),
+                        // Today's Tasks
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildTaskChip('Spray scheduled 8 PM'),
+                              const SizedBox(width: AppSpacing.md),
+                              _buildTaskChip('Reason after rainfall'),
+                              const SizedBox(width: AppSpacing.md),
+                              _buildTaskChip('Fertilizer due tomorrow'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    // My Crop Card with overlap
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: Transform.translate(
-                        offset: const Offset(0, -30),
-                        child: _buildMyCropCard(context),
-                      ),
+                  ),
+                  // My Crop Card with overlap
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: Transform.translate(
+                      offset: const Offset(0, -30),
+                      child: _buildMyCropCard(context, activePlot),
                     ),
-                    SizedBox(height: AppSpacing.md),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Disease Risk Alert
-                          _buildDiseaseRiskAlert(context),
-                          SizedBox(height: AppSpacing.lg),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Disease Risk Alert
+                        _buildDiseaseRiskAlert(context, activePlot),
+                        const SizedBox(height: AppSpacing.lg),
 
-                          // What would you like to do? Section
-                          _buildActionButtons(context),
-                          SizedBox(height: AppSpacing.lg),
+                        // What would you like to do? Section
+                        _buildActionButtons(context),
+                        const SizedBox(height: AppSpacing.lg),
 
-                          // Your Farm at a Glance Section
-                          _buildFarmAtGlance(context, stats),
-                          SizedBox(height: AppSpacing.xl),
-                        ],
-                      ),
+                        // Your Farm at a Glance Section
+                        _buildFarmAtGlance(context, stats),
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -170,7 +214,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   // Task Chip Widget
   Widget _buildTaskChip(String task) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
       ),
@@ -194,14 +238,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // My Crop Card with status
-  Widget _buildMyCropCard(BuildContext context) {
+  Widget _buildMyCropCard(BuildContext context, Plot? plot) {
+    if (plot == null) return const SizedBox.shrink();
+    
+    final bool isAtRisk = plot.status == 'At Risk';
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [AppColors.softShadow],
       ),
-      padding: EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           // Crop Info Section
@@ -210,31 +258,53 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Crop: Jasmine',
+                  'Crop: ${plot.cropName}',
                   style: AppTextStyles.headingSmall.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Variety: Sambangi',
+                  'Variety: ${plot.variety}',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
-                SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Last Scan: Yesterday',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Text(
+                      'Last Scan: ${plot.lastScan}',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () => context.push('/crop-registration/${plot.id}'),
+                      icon: const Icon(Icons.refresh, size: 16, color: AppColors.primaryGreen),
+                      label: Text(
+                        'Change Crop',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: AppColors.primaryGreen,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.md),
                 // Status chips
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.sm,
                         vertical: AppSpacing.xs,
                       ),
@@ -254,7 +324,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: AppSpacing.xs),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
                       'Preventive spray\nin 24 hrs',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -264,11 +334,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: AppSpacing.xs),
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.sm,
                         vertical: AppSpacing.xs,
                       ),
@@ -288,7 +358,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: AppSpacing.xs),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
                       'High',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -301,33 +371,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
             ),
           ),
-          SizedBox(width: AppSpacing.md),
+          const SizedBox(width: AppSpacing.md),
           // Risk Badge and Image Placeholder
           Column(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.alertYellow,
+                  color: isAtRisk ? AppColors.alertYellow : AppColors.lightGreen,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.warning,
+                    color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
                     width: 1.5,
                   ),
                 ),
                 child: Text(
-                  'At Risk',
+                  plot.status,
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.warning,
+                    color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
@@ -357,17 +427,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // Disease Risk Alert Card
-  Widget _buildDiseaseRiskAlert(BuildContext context) {
+  Widget _buildDiseaseRiskAlert(BuildContext context, Plot? plot) {
+    if (plot == null) return const SizedBox.shrink();
+    final bool isAtRisk = plot.status == 'At Risk';
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.alertYellow,
+        color: isAtRisk ? AppColors.alertYellow : AppColors.lightGreen.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.warning,
+          color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
           width: 2,
         ),
       ),
-      padding: EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           Expanded(
@@ -381,14 +454,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
                 Text(
-                  'alert',
+                  isAtRisk ? 'High Alert' : 'No Risk',
                   style: AppTextStyles.headingSmall.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'High risk alert',
+                  isAtRisk ? 'High risk alert detected' : 'Everything looks stable',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -397,14 +470,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.warning.withAlpha(26),
+              color: (isAtRisk ? AppColors.warning : AppColors.primaryGreen).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.warning_amber_rounded,
-              color: AppColors.warning,
+            child: Icon(
+              isAtRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+              color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
               size: 32,
             ),
           ),
@@ -424,7 +497,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             color: AppColors.textPrimary,
           ),
         ),
-        SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -482,8 +555,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: const BoxDecoration(
                 color: AppColors.lightGreen,
                 shape: BoxShape.circle,
               ),
@@ -493,7 +566,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 size: 28,
               ),
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               label,
               textAlign: TextAlign.center,
@@ -516,7 +589,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         gradient: LinearGradient(
           colors: [
             AppColors.primaryGreen,
-            AppColors.primaryGreen.withAlpha(200),
+            AppColors.primaryGreen.withOpacity(0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -524,7 +597,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [AppColors.softShadow],
       ),
-      padding: EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -534,7 +607,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               color: AppColors.white,
             ),
           ),
-          SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -556,14 +629,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
           // Farm Image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
               width: double.infinity,
               height: 150,
-              color: AppColors.white.withAlpha(26),
+              color: AppColors.white.withOpacity(0.1),
               child: Image.asset(
                 'assets/images/farm_overview.png',
                 fit: BoxFit.cover,
@@ -598,7 +671,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             fontSize: 20,
           ),
         ),
-        SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           label,
           textAlign: TextAlign.center,
@@ -608,6 +681,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showPlotSwitcher(BuildContext context, WidgetRef ref, List<Plot> plots) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select Active Plot',
+                style: AppTextStyles.headingSmall.copyWith(color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 16),
+              ...plots.map((plot) => ListTile(
+                leading: const Icon(Icons.landscape, color: AppColors.primaryGreen),
+                title: Text(plot.surveyNo, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('${plot.cropName} (${plot.variety})'),
+                trailing: ref.watch(activePlotProvider)?.id == plot.id 
+                  ? const Icon(Icons.check_circle, color: AppColors.primaryGreen) 
+                  : null,
+                onTap: () {
+                  ref.read(activePlotProvider.notifier).setActivePlot(plot);
+                  Navigator.pop(context);
+                },
+              )).toList(),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 }
