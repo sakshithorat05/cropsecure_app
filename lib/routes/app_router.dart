@@ -27,6 +27,7 @@ import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';
 import '../screens/treatment/stage_expanded_screen.dart';
 import '../screens/marketplace/marketplace_screen.dart';
+import '../screens/marketplace/search_overlay_screen.dart';
 import '../screens/marketplace/product_detail_screen.dart';
 import '../screens/marketplace/cart_screen.dart';
 import '../screens/profile/profile_screen.dart';
@@ -173,9 +174,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const MarketplaceScreen(),
                 routes: [
                   GoRoute(
-                    path: 'product/:id',
+                    path: 'search',
+                    pageBuilder: (context, state) => CustomTransitionPage<void>(
+                      key: state.pageKey,
+                      child: const SearchOverlayScreen(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(0.0, -1.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                        return SlideTransition(position: animation.drive(tween), child: child);
+                      },
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'product/:productId',
                     builder: (context, state) => ProductDetailScreen(
-                      productId: state.pathParameters['id'],
+                      productId: state.pathParameters['productId']!,
                     ),
                   ),
                   GoRoute(

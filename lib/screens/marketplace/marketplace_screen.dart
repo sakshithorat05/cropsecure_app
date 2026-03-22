@@ -1,83 +1,246 @@
 import 'package:flutter/material.dart';
-import '../../core/services/database_service.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../../core/theme/app_spacing.dart';
-import 'models/product_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/constants/app_strings.dart';
+import '../../providers/marketplace_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../widgets/common/product_card.dart';
+import 'voice_search_overlay.dart';
 
-class MarketplaceScreen extends StatefulWidget {
+class MarketplaceScreen extends ConsumerWidget {
   const MarketplaceScreen({super.key});
 
-  @override
-  State<MarketplaceScreen> createState() => _MarketplaceScreenState();
-}
-
-class _MarketplaceScreenState extends State<MarketplaceScreen> {
-  final DatabaseService _db = DatabaseService();
-  late Future<List<ProductModel>> _productsFuture;
-  String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'Fertilizers', 'Pesticides', 'Seeds', 'Tools'];
-
-  @override
-  void initState() {
-    super.initState();
-    _productsFuture = _db.getAllProducts();
+  void _showFilterSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surfaceWhite,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Filters', style: AppTextStyles.headingMedium),
+              const SizedBox(height: AppSpacing.md),
+              ListTile(
+                title: Text('Sort by Price: Low to High', style: AppTextStyles.bodyLarge),
+                onTap: () {
+                  ref.read(marketplaceProvider.notifier).setSortOption('price_low');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Sort by Price: High to Low', style: AppTextStyles.bodyLarge),
+                onTap: () {
+                  ref.read(marketplaceProvider.notifier).setSortOption('price_high');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Clear Filters', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
+                onTap: () {
+                  ref.read(marketplaceProvider.notifier).setSortOption('');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(marketplaceProvider);
+    final cartItems = ref.watch(cartProvider);
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: Text('Marketplace', style: AppTextStyles.appBarTitle),
-        backgroundColor: AppColors.primaryGreen,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-            onPressed: () => context.push('/market/cart'),
-          ),
-        ],
-      ),
       body: Column(
         children: [
-          _buildHeader(),
-          _buildCategoryFilter(),
+          // Header
+          Container(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + AppSpacing.md,
+              bottom: AppSpacing.md,
+              left: AppSpacing.md,
+              right: AppSpacing.md,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen.withAlpha(240),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.black.withAlpha(20),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ]
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(AppStrings.marketplaceTitle, style: AppTextStyles.headingLarge.copyWith(color: AppColors.white, fontSize: 28)),
+                    Stack(
+                       clipBehavior: Clip.none,
+                       children: [
+                         Container(
+                           padding: const EdgeInsets.all(8),
+                           decoration: BoxDecoration(
+                             color: AppColors.white,
+                             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                           ),
+                           child: const Icon(Icons.shopping_cart, color: AppColors.textPrimary, size: 24),
+                         ),
+                         if (cartItems.isNotEmpty)
+                           Positioned(
+                             top: -6,
+                             right: -6,
+                             child: Container(
+                               padding: const EdgeInsets.all(6),
+                               decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                               child: Text(
+                                 cartItems.fold<int>(0, (sum, i) => sum + i.quantity).toString(),
+                                 style: AppTextStyles.labelSmall.copyWith(color: AppColors.white, fontSize: 10, height: 1),
+                               ),
+                             )
+                           ),
+                       ]
+                    ),
+                  ]
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                GestureDetector(
+                  onTap: () => context.push('/market/search'),
+                  child: Container(
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryContainer.withAlpha(220),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search, color: AppColors.primaryGreen),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            AppStrings.searchPlaceholder,
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => const VoiceSearchOverlay(),
+                            );
+                          },
+                          child: const Icon(Icons.mic_none, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Tab Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildTab(context, ref, 0, AppStrings.tabFungicide, state.selectedTab == 0),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildTab(context, ref, 1, AppStrings.tabFertiliser, state.selectedTab == 1),
+                  const SizedBox(width: AppSpacing.sm),
+                  _buildTab(context, ref, 2, AppStrings.tabPesticide, state.selectedTab == 2),
+                ],
+              ),
+            ),
+          ),
+          
+          // Filter Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Showing ${state.filteredProducts.length} items',
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                ),
+                GestureDetector(
+                  onTap: () => _showFilterSheet(context, ref),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Filters', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.filter_alt_outlined, size: 16, color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Product Grid
           Expanded(
-            child: FutureBuilder<List<ProductModel>>(
-              future: _productsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen));
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
-                final products = snapshot.data ?? [];
-                final filteredProducts = _selectedCategory == 'All' 
-                  ? products 
-                  : products.where((p) => p.category == _selectedCategory).toList();
-
-                if (filteredProducts.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: filteredProducts.length,
-                  itemBuilder: (context, index) {
-                    return _buildProductCard(filteredProducts[index]);
-                  },
-                );
-              },
+            child: RefreshIndicator(
+              color: AppColors.primaryGreen,
+              onRefresh: () => ref.read(marketplaceProvider.notifier).loadProducts(),
+              child: state.isLoading 
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen))
+                : state.filteredProducts.isEmpty
+                    ? Center(
+                        child: Text(
+                          AppStrings.noSearchResults,
+                          style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
+                        ),
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: AppSpacing.md,
+                          crossAxisSpacing: AppSpacing.md,
+                          childAspectRatio: 0.62,
+                        ),
+                        itemCount: state.filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = state.filteredProducts[index];
+                          return GestureDetector(
+                            onTap: () {
+                              context.push('/market/product/${product.id}');
+                            },
+                            child: ProductCard(product: product),
+                          );
+                        },
+                      ),
             ),
           ),
         ],
@@ -85,168 +248,25 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryGreen,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search for products...',
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryFilter() {
-    return SizedBox(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          final isSelected = _selectedCategory == category;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              label: Text(category),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedCategory = category;
-                });
-              },
-              selectedColor: AppColors.primaryGreen.withOpacity(0.2),
-              checkmarkColor: AppColors.primaryGreen,
-              labelStyle: TextStyle(
-                color: isSelected ? AppColors.primaryGreen : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              backgroundColor: Colors.grey[100],
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProductCard(ProductModel product) {
+  Widget _buildTab(BuildContext context, WidgetRef ref, int index, String label, bool isActive) {
     return GestureDetector(
-      onTap: () => context.push('/market/product/${product.id}'),
+      onTap: () => ref.read(marketplaceProvider.notifier).selectTab(index),
       child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [AppColors.softShadow],
-          border: Border.all(color: Colors.grey[100] ?? Colors.grey),
+          color: isActive ? AppColors.primaryGreen : AppColors.surfaceWhite.withAlpha(150),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+          border: isActive ? null : Border.all(color: AppColors.primaryLight, width: 1.5),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Section
-            Expanded(
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Container(
-                      width: double.infinity,
-                      color: Colors.grey[50],
-                      child: product.imageUrl.isNotEmpty
-                        ? Image.network(product.imageUrl, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Icon(Icons.shopping_basket, size: 50, color: Colors.grey))
-                        : const Center(child: Icon(Icons.shopping_basket, size: 50, color: Colors.grey)),
-                    ),
-                  ),
-                  if (product.isOrganic)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGreen,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text('Organic', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            // Details Section
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: AppTextStyles.headingSmall.copyWith(fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.category,
-                    style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '₹${product.price.toStringAsFixed(0)}',
-                        style: AppTextStyles.headingMedium.copyWith(color: AppColors.primaryGreen, fontSize: 16),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGreen,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 16),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: isActive ? AppColors.white : AppColors.textSecondary,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[200]),
-          const SizedBox(height: 16),
-          Text('No products found', style: AppTextStyles.headingMedium.copyWith(color: AppColors.textSecondary)),
-        ],
       ),
     );
   }

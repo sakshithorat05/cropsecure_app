@@ -50,9 +50,40 @@ final class AppStrings {
   // ---------------------------------------------------------------------------
   // Marketplace
   // ---------------------------------------------------------------------------
-  static const String searchPlaceholder = 'Search products...';
+  static const String marketplaceTitle        = 'Marketplace';
+  static const String searchPlaceholder       = 'Search fungicides, fertilisers...';
+  static const String tabFungicide            = 'Fungicide';
+  static const String tabFertiliser           = 'Fertiliser';
+  static const String tabPesticide            = 'Pesticide';
+  static const String addToCart               = 'Add to Cart';
+  static const String noSearchResults         = 'No products found';
+  static const String noSearchResultsSubtitle = 'Try a different name or category';
+  static const String recentSearches          = 'Recent Searches';
+  static const String popularProducts         = 'Popular Products';
+  static const String clearAll                = 'Clear';
+  static const String cancel                  = 'Cancel';
+  static const String search                  = 'Search';
+  static const String tryAgain                = 'Try Again';
+  
   static const String cartTitle = 'Your Cart';
   static const String currencyFormatting = '₹';
+
+  // Voice search
+  static const String voiceSearchTitle        = 'Search by voice';
+  static const String voiceSearchInstruction  = 'Say the product name or disease';
+  static const String tapToSpeak              = 'Tap to speak';
+  static const String listeningLabel          = 'Listening...';
+
+  // Product detail
+  static const String alsoKnownAs            = 'Also known as:';
+  static const String targetDiseases         = 'Target Diseases';
+  static const String dosageCalculatorTitle  = 'Dosage Calculator';
+  static const String enterAreaLabel         = 'Enter your farm area';
+  static const String calculate              = 'Calculate';
+  static const String safetyInstructions     = 'Safety Instructions';
+  static const String completeYourCare       = 'Complete your care for ';
+  static const String inStock                = 'In Stock';
+  static const String outOfStock             = 'Out of Stock';
 
   // ---------------------------------------------------------------------------
   // Common
