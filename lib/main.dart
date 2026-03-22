@@ -6,11 +6,13 @@ import 'routes/app_router.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/services/mongodb_service.dart';
+import 'core/services/cloudinary_service.dart';
 
 final getIt = GetIt.instance;
 
 void setupDependencyInjection() {
   getIt.registerLazySingleton<MongoDBService>(() => MongoDBService());
+  getIt.registerLazySingleton<CloudinaryService>(() => CloudinaryService());
 }
 
 Future<void> main() async {
@@ -22,6 +24,10 @@ Future<void> main() async {
   // Initialize MongoDB
   final mongoService = MongoDBService();
   await mongoService.connect();
+
+  // Initialize Cloudinary
+  final cloudinaryService = CloudinaryService();
+  cloudinaryService.initialize();
 
   setupDependencyInjection();
 
