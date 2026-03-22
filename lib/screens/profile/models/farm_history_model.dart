@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:core';
 
 enum FarmHistoryType {
   scan,
@@ -26,25 +26,23 @@ class FarmHistoryModel {
     this.metadata = const {},
   });
 
-  factory FarmHistoryModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    
+  factory FarmHistoryModel.fromMap(Map<String, dynamic> map) {
     return FarmHistoryModel(
-      id: doc.id,
-      uid: data['uid'] as String? ?? '',
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      type: data['type'] == 'treatment' ? FarmHistoryType.treatment : FarmHistoryType.scan,
-      title: data['title'] as String? ?? '',
-      subtitle: data['subtitle'] as String? ?? '',
-      imageUrl: data['imageUrl'] as String?,
-      metadata: data['metadata'] != null ? Map<String, dynamic>.from(data['metadata'] as Map) : {},
+      id: map['_id']?.toHexString() ?? '',
+      uid: map['uid'] as String? ?? '',
+      createdAt: map['createdAt'] ?? DateTime.now(),
+      type: map['type'] == 'treatment' ? FarmHistoryType.treatment : FarmHistoryType.scan,
+      title: map['title'] as String? ?? '',
+      subtitle: map['subtitle'] as String? ?? '',
+      imageUrl: map['imageUrl'] as String?,
+      metadata: map['metadata'] != null ? Map<String, dynamic>.from(map['metadata'] as Map) : {},
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': DateTime.now(), // MongoDB will store this as ISODate
       'type': type == FarmHistoryType.treatment ? 'treatment' : 'scan',
       'title': title,
       'subtitle': subtitle,

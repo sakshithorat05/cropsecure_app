@@ -6,13 +6,20 @@ import 'database_service.dart';
 class TreatmentApiService {
   final DatabaseService _db = DatabaseService();
 
-  Future<TreatmentAdvisoryData> fetchTreatmentAdvisory() async {
-    // 1. Fetch all diseases and pick the first one as "Latest Advisory" for demo
-    // In a real app, this would be based on the user's latest scan result.
-    final allDiseases = await _db.getAllDiseases();
+  Future<TreatmentAdvisoryData> fetchTreatmentAdvisory({String? cropName}) async {
+    // 1. Fetch diseases (optionally filtered by crop)
+    List<DiseaseDetailsModel> allDiseases = [];
+    if (cropName != null) {
+      allDiseases = await _db.getDiseasesByCrop(cropName);
+    }
+    
+    // Fallback if no specific crop diseases or cropName is null
+    if (allDiseases.isEmpty) {
+      allDiseases = await _db.getAllDiseases();
+    }
     
     if (allDiseases.isEmpty) {
-      throw Exception('No diseases in database');
+      throw Exception('No diseases found in database.');
     }
 
     final disease = allDiseases.first;
@@ -38,20 +45,51 @@ class TreatmentApiService {
       )),
     ];
 
+    final weather = await _db.getLatestWeather();
+    
+    String humidityStr = 'Normal';
+    String riskLevelStr = 'Moderate';
+    String warningStr = 'Good time for application.';
+    
+    if (weather != null) {
+      final dynamic rawHumidity = weather['humidity'];
+      humidityStr = rawHumidity?.toString() ?? 'Normal';
+      
+      // Try to determine risk if it's a number
+      if (rawHumidity is num) {
+        if (rawHumidity > 70) {
+          riskLevelStr = 'High';
+          warningStr = 'High humidity detected. Avoid spraying if rain is expected.';
+        } else {
+          riskLevelStr = 'Low';
+          warningStr = 'Ideal conditions for spraying.';
+        }
+      } else if (humidityStr.toLowerCase().contains('high')) {
+        riskLevelStr = 'High';
+        warningStr = 'Humidity is high. Check for rain before spraying.';
+      } else {
+        riskLevelStr = 'Normal';
+        warningStr = 'Standard conditions for application.';
+      }
+    }
+
     return TreatmentAdvisoryData(
       cropName: disease.cropAffected,
       diseaseName: disease.diseaseName,
-      severity: 'Medium Severity', // Could be dynamic from some latest report
-      detectionTime: 'Updated just now',
+      severity: 'Medium', 
+      detectionTime: 'Updated recently',
       diseaseDetails: disease.causes.isNotEmpty ? disease.causes.first : '',
       fullDiseaseDetails: disease,
       diseaseRiskToday: RiskModel(
-        humidity: 'High',
-        rainChance: '20%',
-        riskLevel: 'Moderate',
-        warning: 'Good time for application.',
+        humidity: humidityStr,
+        rainChance: '10%', // Could also be fetched if available in DB
+        riskLevel: riskLevelStr,
+        warning: warningStr,
       ),
-      treatments: mappedTreatments,
+      treatments: [
+        ...disease.organicTreatments,
+        ...disease.chemicalTreatments,
+      ],
     );
   }
 }

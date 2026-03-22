@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../models/disease_details_model.dart';
 import '../models/treatment_advisory_model.dart';
 
 class TreatmentCard extends StatelessWidget {
-  final TreatmentModel treatment;
+  final DiseaseTreatmentModel treatment;
 
   const TreatmentCard({
     super.key,
@@ -51,7 +52,7 @@ class TreatmentCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               isChemical ? 'Chemical Treatment' : 'Organic Treatment',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
@@ -61,7 +62,7 @@ class TreatmentCard extends StatelessWidget {
                             ),
                           ),
                           if (isChemical)
-                            const Text(
+                            Text(
                               'Success Rate',
                               style: TextStyle(
                                 fontSize: 12,
@@ -70,7 +71,7 @@ class TreatmentCard extends StatelessWidget {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -82,7 +83,7 @@ class TreatmentCard extends StatelessWidget {
                             ),
                             child: Text(
                               badgeText,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
@@ -91,8 +92,8 @@ class TreatmentCard extends StatelessWidget {
                           ),
                           if (isChemical)
                             Text(
-                              treatment.successRate,
-                              style: const TextStyle(
+                              '92%',
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primaryGreen,
@@ -100,9 +101,9 @@ class TreatmentCard extends StatelessWidget {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
-                        treatment.medicineName,
+                        treatment.title,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -114,13 +115,8 @@ class TreatmentCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                const AnimatedRotation(
-                  turns: 0, // Not expandable yet, but ready for logic
-                  duration: Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-                ),
+                SizedBox(width: 8),
+                Icon(Icons.keyboard_arrow_right, color: Colors.grey),
               ],
             ),
           ),

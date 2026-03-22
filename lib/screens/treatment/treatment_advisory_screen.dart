@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as p;
 
 import '../../providers/treatment_provider.dart';
+import '../../providers/plot_provider.dart';
 import '../../core/theme/app_colors.dart';
 import 'widgets/header_section.dart';
 import 'widgets/disease_card.dart';
@@ -10,16 +12,19 @@ import 'widgets/risk_card.dart';
 import 'widgets/section_header.dart';
 import 'widgets/treatment_shimmer.dart';
 
-class TreatmentAdvisoryScreen extends StatelessWidget {
+class TreatmentAdvisoryScreen extends ConsumerWidget {
   const TreatmentAdvisoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => TreatmentProvider(),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activePlot = ref.watch(activePlotProvider);
+    final String? cropName = activePlot?.cropName;
+
+    return p.ChangeNotifierProvider(
+      create: (_) => TreatmentProvider(cropName: cropName),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Consumer<TreatmentProvider>(
+        body: p.Consumer<TreatmentProvider>(
           builder: (context, provider, child) {
             if (provider.isLoading) {
               return const SafeArea(child: TreatmentShimmer());
@@ -71,8 +76,8 @@ class TreatmentAdvisoryScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 20),
                           HeaderSection(
-                            cropName: 'Jasmine',
-                            diseaseName: 'Leaf Blight (Jhusa Rog)',
+                            cropName: data.cropName,
+                            diseaseName: data.diseaseName,
                             severity: data.severity,
                             detectionTime: data.detectionTime,
                           ),

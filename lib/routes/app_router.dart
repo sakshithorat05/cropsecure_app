@@ -121,7 +121,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'chemical',
                     builder: (context, state) {
-                      final data = state.extra as TreatmentModel?;
+                      final data = state.extra as DiseaseTreatmentModel?;
                       if (data == null) {
                         return const Scaffold(
                           backgroundColor: Colors.transparent,
@@ -134,7 +134,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'organic',
                     builder: (context, state) {
-                      final data = state.extra as TreatmentModel?;
+                      final data = state.extra as DiseaseTreatmentModel?;
                       if (data == null) {
                         return Scaffold(
                           backgroundColor: Colors.transparent,

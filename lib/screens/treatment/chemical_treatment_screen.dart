@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/theme/app_colors.dart';
-import 'models/treatment_advisory_model.dart';
+import '../../core/services/database_service.dart';
+import '../../core/theme/app_colors.dart';
+import 'models/disease_details_model.dart';
 import 'widgets/info_card.dart';
 import 'widgets/step_item.dart';
 import 'widgets/dosage_card.dart';
 
 class ChemicalTreatmentScreen extends StatelessWidget {
-  final TreatmentModel data;
+  final DiseaseTreatmentModel data;
 
   const ChemicalTreatmentScreen({
     super.key,
@@ -20,9 +20,9 @@ class ChemicalTreatmentScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text(
-          'Chemical Treatment',
-          style: TextStyle(
+        title: Text(
+          data.type == 'Chemical' ? 'Chemical Treatment' : 'Organic Treatment',
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -43,35 +43,14 @@ class ChemicalTreatmentScreen extends StatelessWidget {
             children: [
               // Medicine Name Header
               Text(
-                data.medicineName,
-                style: const TextStyle(
+                data.title,
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 16),
-
-              // ALSO KNOWN AS Section
-              const Text(
-                'ALSO KNOWN AS',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildChip('Bavistin'),
-                  _buildChip('Dhanustin'),
-                ],
-              ),
-              const SizedBox(height: 24),
 
               // Description Section
               Row(
@@ -92,14 +71,12 @@ class ChemicalTreatmentScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      'This fungicide provides both curative and preventive action against a wide range of crop diseases. Designed for rapid absorption to halt fungal growth effectively.',
+                      data.benefit,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade800,
                         height: 1.5,
                       ),
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -107,9 +84,9 @@ class ChemicalTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Dosage Card
-              const DosageCard(
-                mainDosage: '2 grams per 1 liter water',
-                subDosage: 'Per Acre: 500g per 200 liters water',
+              DosageCard(
+                mainDosage: data.dose,
+                subDosage: 'Follow instructions on the pack thoroughly.',
               ),
               const SizedBox(height: 24),
 
@@ -121,31 +98,31 @@ class ChemicalTreatmentScreen extends StatelessWidget {
                     crossAxisCount: isWideScreen ? 2 : 1,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: isWideScreen ? 2.5 : 2.8, // Increased height for mobile
+                    childAspectRatio: isWideScreen ? 2.5 : 2.8, 
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     children: [
-                      const InfoCard(
+                      InfoCard(
                         icon: Icons.water_drop_outlined,
                         title: 'How to Apply',
-                        value: 'Foliar spray (spray on leaves)',
+                        value: data.use,
                       ),
-                      const InfoCard(
+                      InfoCard(
                         icon: Icons.update,
                         title: 'Repeat After',
-                        value: 'Repeat after 7–10 days',
+                        value: data.repeatAfter,
                         iconColor: Colors.blue,
                       ),
-                      const InfoCard(
+                      InfoCard(
                         icon: Icons.wb_sunny_outlined,
                         title: 'Best Time',
-                        value: 'Early morning or late evening',
+                        value: data.bestTime,
                         iconColor: Colors.orange,
                       ),
                       InfoCard(
                         icon: Icons.timer_outlined,
                         title: 'Wait Before Harvest',
-                        value: '7 days before harvest',
+                        value: data.waitingPeriod,
                         iconColor: Colors.red.shade400,
                       ),
                     ],
@@ -155,7 +132,7 @@ class ChemicalTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Step-by-Step Instructions
-              const Text(
+              Text(
                 'Step-by-Step Instructions',
                 style: TextStyle(
                   fontSize: 18,
@@ -163,40 +140,25 @@ class ChemicalTreatmentScreen extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 16),
-              const StepItem(
-                stepNumber: 1,
-                description: 'Fill spray tank halfway with clean water',
-              ),
-              const StepItem(
-                stepNumber: 2,
-                description: 'Measure 1 g Carbendazim per liter of water',
-              ),
-              const StepItem(
-                stepNumber: 3,
-                description: 'Dissolve powder in a small container first',
-              ),
-              const StepItem(
-                stepNumber: 4,
-                description: 'Fill remaining water and stir thoroughly',
-              ),
-              const StepItem(
-                stepNumber: 5,
-                description: 'Add solution to spray tank and mix well',
-              ),
-              const StepItem(
-                stepNumber: 6,
-                description: 'Spray on all leaves (upper & lower surfaces)',
-              ),
-              const StepItem(
-                stepNumber: 7,
-                description: 'Ensure uniform coverage; avoid runoff',
-                isLast: true,
-              ),
+              const SizedBox(height: 20),
+              
+              if (data.steps.isEmpty)
+                Text('No steps provided in database.')
+              else
+                ...data.steps.asMap().entries.map((entry) {
+                   int idx = entry.key;
+                   String stepDesc = entry.value;
+                   return StepItem(
+                     stepNumber: idx + 1, 
+                     description: stepDesc,
+                     isLast: idx == data.steps.length - 1,
+                   );
+                }),
+
               const SizedBox(height: 24),
 
               // Estimated Cost
-              const Text(
+              Text(
                 'Estimated Cost',
                 style: TextStyle(
                   fontSize: 16,
@@ -215,10 +177,10 @@ class ChemicalTreatmentScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.currency_rupee, color: AppColors.primaryGreen),
+                    Icon(Icons.currency_rupee, color: AppColors.primaryGreen),
                     const SizedBox(width: 8),
                     Text(
-                      '150–200 per 250g pack',
+                      data.estimatedCost,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -231,67 +193,98 @@ class ChemicalTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Farmer Tips
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.orange.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.lightbulb_outline, color: Colors.orange),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Farmer Tips',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+              if (data.tips.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.lightbulb_outline, color: Colors.orange),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'Farmer Tips',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ...data.tips.map((tip) => _buildBulletText(context, tip)),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 44),
+
+              // Apply Treatment Button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final db = DatabaseService();
+                      await db.addFarmHistoryLog("user_123", {
+                        "type": "treatment",
+                        "title": "Chemical Treatment Applied",
+                        "subtitle": data.title,
+                        "createdAt": DateTime.now(),
+                        "metadata": {
+                          "treatment": data.title,
+                          "type": data.type,
+                          "dose": data.dose,
+                        }
+                      });
+                      
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Chemical treatment applied and recorded!'),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                        context.pop();
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to record treatment: $e')),
+                        );
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                  ),
+                  child: const Text(
+                    'Apply Chemical Treatment',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 16),
-                    _buildBulletText(context, 'Shake sprayer every few minutes'),
-                    _buildBulletText(context, 'Do not mix with other pesticides unless recommended'),
-                    _buildBulletText(context, 'Store powder in cool dry place'),
-                    _buildBulletText(context, 'Do not store mixed solution overnight'),
-                  ],
+                  ),
                 ),
               ),
 
-              // Bottom spacing to prevent FAB overlap
-              const SizedBox(height: 100),
+              const SizedBox(height: 60),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey.shade700,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -319,11 +312,28 @@ class ChemicalTreatmentScreen extends StatelessWidget {
                 color: Colors.orange.shade900,
                 height: 1.4,
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey.shade700,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

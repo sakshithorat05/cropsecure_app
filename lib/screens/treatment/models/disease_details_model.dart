@@ -32,10 +32,11 @@ class DiseaseDetailsModel {
   factory DiseaseDetailsModel.fromJson(Map<String, dynamic>? jsonInput, String documentId) {
     final json = jsonInput ?? {};
     List<String> parsedStages = [];
-    if (json['stage'] is List) {
-      parsedStages = List<String>.from(json['stage']);
-    } else if (json['stage'] is String) {
-      parsedStages = [json['stage'] as String];
+    final rawStages = json['stages'] ?? json['stage'];
+    if (rawStages is List) {
+      parsedStages = List<String>.from(rawStages);
+    } else if (rawStages is String) {
+      parsedStages = [rawStages];
     }
 
     return DiseaseDetailsModel(
@@ -87,14 +88,28 @@ class DiseaseTreatmentModel {
   final String type;
   final String use;
   final String dose;
+  final List<String> steps;
+  final String estimatedCost;
   final String benefit;
+  final String repeatAfter;
+  final String bestTime;
+  final String waitingPeriod;
+  final List<String> tips;
+  final List<String> safety;
 
   DiseaseTreatmentModel({
     required this.title,
     required this.type,
     required this.use,
     required this.dose,
+    required this.steps,
+    required this.estimatedCost,
     required this.benefit,
+    required this.repeatAfter,
+    required this.bestTime,
+    required this.waitingPeriod,
+    required this.tips,
+    required this.safety,
   });
 
   factory DiseaseTreatmentModel.fromJson(Map<String, dynamic> json) {
@@ -103,7 +118,14 @@ class DiseaseTreatmentModel {
       type: json['type'] ?? '',
       use: json['use'] ?? '',
       dose: json['dose'] ?? '',
+      steps: json['steps'] != null ? List<String>.from(json['steps']) : [],
+      estimatedCost: json['estimatedCost'] ?? json['price'] ?? 'N/A',
       benefit: json['benefit'] ?? json['description'] ?? '',
+      repeatAfter: json['repeatAfter'] ?? 'Not specified',
+      bestTime: json['bestTime'] ?? 'Not specified',
+      waitingPeriod: json['waitingPeriod'] ?? 'Not specified',
+      tips: json['tips'] != null ? List<String>.from(json['tips']) : [],
+      safety: json['safety'] != null ? List<String>.from(json['safety']) : [],
     );
   }
 }

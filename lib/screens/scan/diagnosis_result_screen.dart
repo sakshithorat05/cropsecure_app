@@ -195,7 +195,7 @@ class DiagnosisResultScreen extends StatelessWidget {
                             onPressed: () {
                               final mockDiseaseData = DiseaseDetailsModel(
                                 id: 'leaf_blight_id',
-                                cropAffected: 'Crop',
+                                cropAffected: 'Tomato',
                                 diseaseName: 'Leaf Blight',
                                 diseaseType: 'Fungal',
                                 causalOrganism: 'Fungus',
@@ -217,6 +217,17 @@ class DiagnosisResultScreen extends StatelessWidget {
                                     use: 'Spray on leaves',
                                     dose: '5ml/liter',
                                     benefit: 'Antifungal properties',
+                                    steps: [
+                                      'Wait 5–7 days after any bio-fungicides',
+                                      'Mix neem oil with water separately',
+                                      'Spray thoroughly on both sides of leaves',
+                                    ],
+                                    estimatedCost: '₹80–120 per application',
+                                    repeatAfter: 'Every 10-15 days',
+                                    bestTime: 'Early morning or late evening',
+                                    waitingPeriod: 'Safe to harvest anytime',
+                                    tips: ['Always prepare fresh solution', 'Combine with organic practices'],
+                                    safety: ['Avoid spraying in hot sun', 'Store properly'],
                                   ),
                                 ],
                                 chemicalTreatments: [],

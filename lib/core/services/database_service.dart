@@ -1,64 +1,108 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'mongodb_service.dart';
 import '../../screens/treatment/models/disease_details_model.dart';
 import '../../screens/profile/models/farm_history_model.dart';
 import '../../screens/marketplace/models/product_model.dart';
 import '../../screens/profile/models/purchase_model.dart';
+import '../../../providers/plot_provider.dart';
 
 class DatabaseService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final MongoDBService _mongo = MongoDBService();
 
-  // Collection References
-  CollectionReference get usersCollection => _firestore.collection('users');
-  CollectionReference get farmHistoryCollection => _firestore.collection('farm_history');
-  CollectionReference get productsCollection => _firestore.collection('products');
-  CollectionReference get diseasesCollection => _firestore.collection('pests_and_diseases');
-  CollectionReference get purchasesCollection => _firestore.collection('purchases');
+  // Collection Accessors
+  mongo.DbCollection get usersCollection => _mongo.getCollection('users');
+  mongo.DbCollection get farmHistoryCollection => _mongo.getCollection('farm_history');
+  mongo.DbCollection get plotsCollection => _mongo.getCollection('plots');
+  mongo.DbCollection get diseasesCollection => _mongo.getCollection('pests_and_diseases');
+  mongo.DbCollection get productsCollection => _mongo.getCollection('products');
+  mongo.DbCollection get purchasesCollection => _mongo.getCollection('purchases');
+  mongo.DbCollection get weatherLogsCollection => _mongo.getCollection('weather_logs');
+  mongo.DbCollection get remindersCollection => _mongo.getCollection('reminders');
 
   // --- User Operations ---
 
-  /// Creates or updates a user profile document
-  Future<void> saveUserProfile(String uid, Map<String, dynamic> userData) async {
-    try {
-      await usersCollection.doc(uid).set(userData, SetOptions(merge: true));
-    } catch (e) {
-      throw Exception('Failed to save user profile: $e');
-    }
-  }
-
-  /// Fetches a user profile document
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
-      DocumentSnapshot doc = await usersCollection.doc(uid).get();
-      return doc.data() as Map<String, dynamic>?;
+      return await usersCollection.findOne(mongo.where.eq('uid', uid));
     } catch (e) {
       throw Exception('Failed to get user profile: $e');
     }
   }
 
+  Future<void> saveUserProfile(String uid, Map<String, dynamic> profileData) async {
+    try {
+      await usersCollection.update(
+        mongo.where.eq('uid', uid),
+        {r'$set': profileData},
+        upsert: true,
+      );
+    } catch (e) {
+      throw Exception('Failed to save user profile: $e');
+    }
+  }
+
+  // --- Reminder Operations ---
+
+  Future<List<Map<String, dynamic>>> getUserReminders(String uid) async {
+    try {
+      final results = await remindersCollection
+          .find(mongo.where.eq('uid', uid).sortBy('dueDate'))
+          .toList();
+      return results;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // --- Plot Operations ---
+
+  Future<void> addPlot(Plot plot) async {
+    try {
+      await plotsCollection.insert(plot.toMap());
+    } catch (e) {
+      throw Exception('Failed to add plot: $e');
+    }
+  }
+
+  Future<List<Plot>> getUserPlots(String ownerId) async {
+    try {
+      final results = await plotsCollection.find(mongo.where.eq('ownerId', ownerId)).toList();
+      return results.map((map) => Plot.fromMap(map)).toList();
+    } catch (e) {
+      throw Exception('Failed to get plots: $e');
+    }
+  }
+
+  Future<void> updatePlot(Plot plot) async {
+    try {
+      await plotsCollection.update(
+        mongo.where.id(mongo.ObjectId.fromHexString(plot.id)),
+        plot.toMap(),
+      );
+    } catch (e) {
+      throw Exception('Failed to update plot: $e');
+    }
+  }
+
   // --- Farm History Operations ---
 
-  /// Adds a new farm history log for a specific user
   Future<void> addFarmHistoryLog(String uid, Map<String, dynamic> logData) async {
     try {
       logData['uid'] = uid;
-      logData['createdAt'] = FieldValue.serverTimestamp();
-      await farmHistoryCollection.add(logData);
+      logData['createdAt'] = DateTime.now();
+      await farmHistoryCollection.insert(logData);
     } catch (e) {
       throw Exception('Failed to add farm history log: $e');
     }
   }
 
-  /// Fetches the farm history logs for a specific user ordered by newest
   Future<List<FarmHistoryModel>> getUserFarmHistory(String uid) async {
     try {
-      QuerySnapshot querySnapshot = await farmHistoryCollection
-          .where('uid', isEqualTo: uid)
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      return querySnapshot.docs
-          .map((doc) => FarmHistoryModel.fromFirestore(doc))
+      final results = await farmHistoryCollection
+          .find(mongo.where.eq('uid', uid).sortBy('createdAt', descending: true))
           .toList();
+
+      return results.map((map) => FarmHistoryModel.fromMap(map)).toList();
     } catch (e) {
       throw Exception('Failed to get farm history: $e');
     }
@@ -66,34 +110,51 @@ class DatabaseService {
 
   // --- Pests & Diseases Operations ---
 
-  /// Fetches all diseases to be grouped locally
   Future<List<DiseaseDetailsModel>> getAllDiseases() async {
     try {
-      QuerySnapshot querySnapshot = await diseasesCollection.get();
-
-      return querySnapshot.docs
-          .map((doc) => DiseaseDetailsModel.fromJson(doc.data() as Map<String, dynamic>, doc.id))
-          .toList();
+      final results = await diseasesCollection.find().toList();
+      return results.map((map) => DiseaseDetailsModel.fromJson(map, map['_id'].toHexString())).toList();
     } catch (e) {
       throw Exception('Failed to get all diseases: $e');
     }
   }
 
+  Future<List<DiseaseDetailsModel>> getDiseasesByCrop(String cropName) async {
+    try {
+      // Use case-insensitive regex for better matching
+      final results = await diseasesCollection.find(
+        mongo.where.match('cropAffected', '^$cropName\$', caseInsensitive: true)
+      ).toList();
+      return results.map((map) => DiseaseDetailsModel.fromJson(map, map['_id'].toHexString())).toList();
+    } catch (e) {
+      throw Exception('Failed to get diseases for $cropName: $e');
+    }
+  }
+
+  // --- Weather Operations ---
+
+  Future<Map<String, dynamic>?> getLatestWeather() async {
+    try {
+      final results = await weatherLogsCollection
+          .find(mongo.where.sortBy('timestamp', descending: true).limit(1))
+          .toList();
+      return results.isNotEmpty ? results.first : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // --- Marketplace Operations ---
 
-  /// Fetches all products for the marketplace
   Future<List<ProductModel>> getAllProducts() async {
     try {
-      QuerySnapshot querySnapshot = await productsCollection.get();
-      return querySnapshot.docs
-          .map((doc) => ProductModel.fromFirestore(doc))
-          .toList();
+      final results = await productsCollection.find().toList();
+      return results.map((map) => ProductModel.fromMap(map)).toList();
     } catch (e) {
       throw Exception('Failed to get products: $e');
     }
   }
 
-  /// Fetches summary stats for the dashboard
   Future<Map<String, dynamic>> getDashboardStats(String uid) async {
     try {
       final history = await getUserFarmHistory(uid);
@@ -106,7 +167,7 @@ class DatabaseService {
         'totalScans': totalScans.toString(),
         'treatmentsApplied': treatmentsApplied.toString(),
         'diseasesDetected': diseasesDetected.toString(),
-        'recoveryRate': '92%', // Placeholder for now or calculate if logic exists
+        'recoveryRate': '92%', 
       };
     } catch (e) {
       return {
@@ -120,23 +181,18 @@ class DatabaseService {
 
   // --- Purchase Operations ---
 
-  /// Fetches product purchases for a specific user
   Future<List<PurchaseModel>> getUserPurchases(String uid) async {
     try {
-      QuerySnapshot querySnapshot = await purchasesCollection
-          .where('uid', isEqualTo: uid)
-          .orderBy('purchaseDate', descending: true)
-          .get();
-
-      return querySnapshot.docs
-          .map((doc) => PurchaseModel.fromFirestore(doc))
+      final results = await purchasesCollection
+          .find(mongo.where.eq('uid', uid).sortBy('purchaseDate', descending: true))
           .toList();
+
+      return results.map((map) => PurchaseModel.fromMap(map)).toList();
     } catch (e) {
       throw Exception('Failed to get purchases: $e');
     }
   }
 
-  /// Records a product purchase
   Future<void> purchaseProduct(String uid, PurchaseModel purchase) async {
     try {
       final purchaseData = {
@@ -145,11 +201,11 @@ class DatabaseService {
         'productCategory': purchase.productCategory,
         'price': purchase.price,
         'quantity': purchase.quantity,
-        'purchaseDate': FieldValue.serverTimestamp(),
+        'purchaseDate': DateTime.now(),
         'status': 'Completed',
         'imageUrl': purchase.imageUrl,
       };
-      await purchasesCollection.add(purchaseData);
+      await purchasesCollection.insert(purchaseData);
     } catch (e) {
       throw Exception('Failed to record purchase: $e');
     }

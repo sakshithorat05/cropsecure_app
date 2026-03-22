@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class PurchaseModel {
   final String id;
   final String uid;
@@ -23,19 +21,17 @@ class PurchaseModel {
     this.imageUrl,
   });
 
-  factory PurchaseModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
-    
+  factory PurchaseModel.fromMap(Map<String, dynamic> map) {
     return PurchaseModel(
-      id: doc.id,
-      uid: data['uid'] as String? ?? '',
-      productName: data['productName'] as String? ?? 'Unknown Product',
-      productCategory: data['productCategory'] as String? ?? 'Inputs',
-      price: (data['price'] as num?)?.toDouble() ?? 0.0,
-      quantity: (data['quantity'] as num?)?.toInt() ?? 1,
-      purchaseDate: (data['purchaseDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      status: data['status'] as String? ?? 'Completed',
-      imageUrl: data['imageUrl'] as String?,
+      id: map['_id']?.toHexString() ?? '',
+      uid: map['uid'] as String? ?? '',
+      productName: map['productName'] as String? ?? 'Unknown Product',
+      productCategory: map['productCategory'] as String? ?? 'Inputs',
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
+      quantity: (map['quantity'] as num?)?.toInt() ?? 1,
+      purchaseDate: map['purchaseDate'] ?? DateTime.now(),
+      status: map['status'] as String? ?? 'Completed',
+      imageUrl: map['imageUrl'] as String?,
     );
   }
 }

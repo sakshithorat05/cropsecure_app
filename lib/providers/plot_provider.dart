@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/services/database_service.dart';
 
 class Plot {
   final String id;
@@ -86,6 +87,62 @@ class Plot {
       mixedCropSpecificTech: mixedCropSpecificTech ?? this.mixedCropSpecificTech,
     );
   }
+
+  factory Plot.fromMap(Map<String, dynamic> map) {
+    return Plot(
+      id: map['_id']?.toHexString() ?? '',
+      surveyNo: map['surveyNo'] ?? '',
+      cropName: map['cropName'] ?? '',
+      variety: map['variety'] ?? '',
+      area: map['landDetails']?['area']?.toString() ?? '0',
+      unit: map['landDetails']?['unit'] ?? 'Acres',
+      ownerName: 'Farmer', // To be fetched or joined
+      location: '${map['location']?['coordinates']?[1]}, ${map['location']?['coordinates']?[0]}',
+      status: map['status'] ?? 'Healthy',
+      lastScan: map['lastScan'] ?? 'N/A',
+      cropType: map['cropType'],
+      cropSeason: map['cropSeason'],
+      seedSource: map['seedSource'],
+      specificTech: map['specificTech'],
+      seedTreatment: map['seedTreatment'],
+      sowingDate: map['sowingDate'],
+      hasMixedCrop: map['hasMixedCrop'] ?? false,
+      mixedCropName: map['mixedCropName'],
+      mixedCropVariety: map['mixedCropVariety'],
+      mixedCropSpecificTech: map['mixedCropSpecificTech'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'surveyNo': surveyNo,
+      'cropName': cropName,
+      'variety': variety,
+      'landDetails': {
+        'area': double.tryParse(area) ?? 0.0,
+        'unit': unit,
+      },
+      'location': {
+        'type': 'Point',
+        'coordinates': [
+          double.tryParse(location.split(',')[1].trim()) ?? 0.0,
+          double.tryParse(location.split(',')[0].trim()) ?? 0.0,
+        ],
+      },
+      'status': status,
+      'lastScan': lastScan,
+      'cropType': cropType,
+      'cropSeason': cropSeason,
+      'seedSource': seedSource,
+      'specificTech': specificTech,
+      'seedTreatment': seedTreatment,
+      'sowingDate': sowingDate,
+      'hasMixedCrop': hasMixedCrop,
+      'mixedCropName': mixedCropName,
+      'mixedCropVariety': mixedCropVariety,
+      'mixedCropSpecificTech': mixedCropSpecificTech,
+    };
+  }
 }
 
 // Mock Data for testing
@@ -128,31 +185,54 @@ final List<Plot> mockPlots = [
   ),
 ];
 
-class PlotsNotifier extends Notifier<List<Plot>> {
-  @override
-  List<Plot> build() => mockPlots;
+class PlotsNotifier extends AsyncNotifier<List<Plot>> {
+  final DatabaseService _db = DatabaseService();
+  final String _tempUid = 'user_123';
 
-  void addPlot(Plot plot) {
-    state = [...state, plot];
+  @override
+  Future<List<Plot>> build() async {
+    return _db.getUserPlots(_tempUid);
   }
 
-  void updatePlot(Plot updatedPlot) {
-    state = [
-      for (final plot in state)
-        if (plot.id == updatedPlot.id) updatedPlot else plot
-    ];
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _db.getUserPlots(_tempUid));
+  }
+
+  Future<void> addPlot(Plot plot) async {
+    state = const AsyncLoading();
+    try {
+      await _db.addPlot(plot);
+      await refresh();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> updatePlot(Plot plot) async {
+    state = const AsyncLoading();
+    try {
+      await _db.updatePlot(plot);
+      await refresh();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 }
 
-final plotsProvider = NotifierProvider<PlotsNotifier, List<Plot>>(() {
+final plotsProvider = AsyncNotifierProvider<PlotsNotifier, List<Plot>>(() {
   return PlotsNotifier();
 });
 
 class ActivePlotNotifier extends Notifier<Plot?> {
   @override
   Plot? build() {
-    final plots = ref.watch(plotsProvider);
-    return plots.isNotEmpty ? plots.first : null;
+    final plotsAsync = ref.watch(plotsProvider);
+    return plotsAsync.when(
+      data: (plots) => plots.isNotEmpty ? plots.first : null,
+      loading: () => null,
+      error: (_, __) => null,
+    );
   }
 
   void setActivePlot(Plot plot) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/theme/app_colors.dart';
-import 'models/treatment_advisory_model.dart';
+import '../../core/services/database_service.dart';
+import '../../core/theme/app_colors.dart';
+import 'models/disease_details_model.dart';
 import 'widgets/info_card.dart';
 import 'widgets/step_item.dart';
 import 'widgets/dosage_card.dart';
@@ -10,7 +10,7 @@ import 'widgets/tips_card.dart';
 import 'widgets/safety_card.dart';
 
 class OrganicTreatmentScreen extends StatelessWidget {
-  final TreatmentModel data;
+  final DiseaseTreatmentModel data;
 
   const OrganicTreatmentScreen({
     super.key,
@@ -22,9 +22,9 @@ class OrganicTreatmentScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text(
-          'Organic Treatment',
-          style: TextStyle(
+        title: Text(
+          data.type == 'Organic' ? 'Organic Treatment' : 'Chemical Treatment',
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -46,8 +46,8 @@ class OrganicTreatmentScreen extends StatelessWidget {
               // Medicine Name Header
               Semantics(
                 label: 'Treatment Name',
-                child: const Text(
-                  'Organic Solutions',
+                child: Text(
+                  data.title,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -57,33 +57,11 @@ class OrganicTreatmentScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // ALSO KNOWN AS Section
-              const Text(
-                'ALSO KNOWN AS',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                   _buildChip('Trichoderma'),
-                   _buildChip('Neem Tel'),
-                   _buildChip('Organic Fungicide'),
-                ],
-              ),
-              const SizedBox(height: 24),
-
               // Description Section
               Semantics(
                 label: 'Treatment Description',
                 child: Text(
-                  'This organic treatment utilizes natural bio-agents and botanical extracts to manage pests and diseases. It works by strengthening the plant\'s immunity and suppressing pathogen growth without chemical residues.',
+                  data.benefit,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade800,
@@ -95,17 +73,13 @@ class OrganicTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Dosage Card (Green Card)
-              const DosageCard(
+              DosageCard(
                 title: 'DOSAGE',
                 isLight: true,
                 items: [
                   DosageItem(
-                    name: 'Trichoderma viride',
-                    value: '2–4 grams per liter of water',
-                  ),
-                  DosageItem(
-                    name: 'Neem Oil',
-                    value: '2 ml per liter of water',
+                    name: 'Recommended Dose',
+                    value: data.dose,
                   ),
                 ],
               ),
@@ -127,30 +101,30 @@ class OrganicTreatmentScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       switch (index) {
                         case 0:
-                          return const InfoCard(
+                          return InfoCard(
                             icon: Icons.how_to_reg_outlined,
                             title: 'How to Apply',
-                            value: 'Spray on leaves + soil drench',
+                            value: data.use,
                           );
                         case 1:
-                          return const InfoCard(
+                          return InfoCard(
                             icon: Icons.repeat_one_outlined,
                             title: 'Repeat After',
-                            value: 'Every 10–15 days',
+                            value: data.repeatAfter,
                             iconColor: Colors.blue,
                           );
                         case 2:
-                          return const InfoCard(
+                          return InfoCard(
                             icon: Icons.wb_sunny_outlined,
                             title: 'Best Time',
-                            value: 'Early morning or late evening',
+                            value: data.bestTime,
                             iconColor: Colors.orange,
                           );
                         case 3:
-                          return const InfoCard(
+                          return InfoCard(
                             icon: Icons.timer_outlined,
-                            title: 'No Waiting Period',
-                            value: 'Safe to harvest anytime',
+                            title: 'Waiting Period',
+                            value: data.waitingPeriod,
                             iconColor: AppColors.primaryGreen,
                           );
                         default:
@@ -163,7 +137,7 @@ class OrganicTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Step-by-Step Instructions
-              const Text(
+              Text(
                 'Step-by-Step Instructions',
                 style: TextStyle(
                   fontSize: 18,
@@ -171,41 +145,25 @@ class OrganicTreatmentScreen extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               
-              const Text(
-                'Step 1 – Trichoderma Application',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryGreen,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const StepItem(stepNumber: 1, description: 'Mix required Trichoderma powder with small water'),
-              const StepItem(stepNumber: 2, description: 'Add 1 tsp jaggery or sugar'),
-              const StepItem(stepNumber: 3, description: 'Keep mixture 30 minutes in shade'),
-              const StepItem(stepNumber: 4, description: 'Dilute with remaining water'),
-              const StepItem(stepNumber: 5, description: 'Apply as soil drench + foliar spray', isLast: true),
+              if (data.steps.isEmpty)
+                Text('No steps provided in database.')
+              else
+                ...data.steps.asMap().entries.map((entry) {
+                   int idx = entry.key;
+                   String stepDesc = entry.value;
+                   return StepItem(
+                     stepNumber: idx + 1, 
+                     description: stepDesc,
+                     isLast: idx == data.steps.length - 1,
+                   );
+                }),
               
-              const SizedBox(height: 20),
-              const Text(
-                'Step 2 – Neem Oil Application',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primaryGreen,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const StepItem(stepNumber: 1, description: 'Wait 5–7 days after Trichoderma'),
-              const StepItem(stepNumber: 2, description: 'Mix neem oil with water separately'),
-              const StepItem(stepNumber: 3, description: 'Spray thoroughly on both sides of leaves', isLast: true),
-
               const SizedBox(height: 32),
 
               // Cost Section
-              const Text(
+              Text(
                 'Estimated Cost',
                 style: TextStyle(
                   fontSize: 16,
@@ -213,7 +171,7 @@ class OrganicTreatmentScreen extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -224,11 +182,11 @@ class OrganicTreatmentScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.currency_rupee, color: AppColors.primaryGreen),
-                    const SizedBox(width: 8),
+                    Icon(Icons.currency_rupee, color: AppColors.primaryGreen),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '₹80–120 per application',
+                        data.estimatedCost,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -244,29 +202,72 @@ class OrganicTreatmentScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Farmer Tips Card
-              const TipsCard(
-                tips: [
-                  'Always prepare fresh solution',
-                  'Add mild soap for neem oil mixing',
-                  'Safe during flowering stage',
-                  'Combine with organic practices',
-                ],
-              ),
-              const SizedBox(height: 24),
+              if (data.tips.isNotEmpty) ...[
+                TipsCard(tips: data.tips),
+                const SizedBox(height: 24),
+              ],
 
               // Safety Card
-              const SafetyCard(
-                instructions: [
-                  'Avoid spraying in hot sun',
-                  'Avoid eye/skin contact',
-                  'Do not spray stressed plants',
-                  'Keep away from bees',
-                  'Store properly',
-                ],
+              if (data.safety.isNotEmpty)
+                SafetyCard(instructions: data.safety),
+
+              const SizedBox(height: 40),
+
+              // Apply Treatment Button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final db = DatabaseService();
+                      await db.addFarmHistoryLog("user_123", {
+                        "type": "treatment",
+                        "title": "Treatment Applied",
+                        "subtitle": data.title,
+                        "createdAt": DateTime.now(),
+                        "metadata": {
+                          "treatment": data.title,
+                          "type": data.type,
+                          "dose": data.dose,
+                        }
+                      });
+                      
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Treatment applied and recorded in farm history!'),
+                            backgroundColor: AppColors.primaryGreen,
+                          ),
+                        );
+                        context.pop();
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to record treatment: $e')),
+                        );
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryGreen,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                  ),
+                  child: const Text(
+                    'Apply Treatment Now',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
 
               // Bottom spacing scroll safety
-              const SizedBox(height: 100),
+              const SizedBox(height: 60),
             ],
           ),
         ),

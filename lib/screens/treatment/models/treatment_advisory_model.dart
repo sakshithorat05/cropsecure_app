@@ -1,3 +1,5 @@
+import 'disease_details_model.dart';
+
 class TreatmentModel {
   final String label;
   final String medicineName;
@@ -33,9 +35,9 @@ class TreatmentAdvisoryData {
   final String diseaseName;
   final String severity;
   final String detectionTime;
-  final String diseaseDetails; // Kept for backwards compatibility
-  final dynamic fullDiseaseDetails; // Updated to dynamic to avoid circular import loops if models not unified yet
-  final List<TreatmentModel> treatments;
+  final String diseaseDetails; 
+  final DiseaseDetailsModel fullDiseaseDetails; 
+  final List<DiseaseTreatmentModel> treatments;
   final RiskModel diseaseRiskToday;
 
   TreatmentAdvisoryData({

@@ -14,21 +14,23 @@ class TreatmentProvider with ChangeNotifier {
   TreatmentAdvisoryData? _advisoryData;
   TreatmentAdvisoryData? get advisoryData => _advisoryData;
 
-  TreatmentProvider({TreatmentApiService? apiService}) 
+  TreatmentProvider({TreatmentApiService? apiService, String? cropName}) 
       : _apiService = apiService ?? TreatmentApiService() {
-    _loadInitialData();
+    _loadInitialData(cropName);
   }
 
-  Future<void> _loadInitialData() async {
+  Future<void> _loadInitialData(String? cropName) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _advisoryData = await _apiService.fetchTreatmentAdvisory();
+      debugPrint('Fetching treatment advisory for crop: $cropName');
+      _advisoryData = await _apiService.fetchTreatmentAdvisory(cropName: cropName);
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'Failed to load treatment advisory. Please try again.';
+      debugPrint('Error loading advisory: $e');
+      _errorMessage = 'Failed to load treatment advisory: $e';
       _advisoryData = null;
     } finally {
       _isLoading = false;
@@ -36,8 +38,8 @@ class TreatmentProvider with ChangeNotifier {
     }
   }
 
-  void refreshData() {
-    _loadInitialData();
+  void refreshData({String? cropName}) {
+    _loadInitialData(cropName);
   }
 }
 

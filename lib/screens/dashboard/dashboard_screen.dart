@@ -28,9 +28,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<Map<String, dynamic>> _loadDashboardData() async {
     final profile = await _db.getUserProfile(_tempUid);
     final stats = await _db.getDashboardStats(_tempUid);
+    final tasks = await _db.getUserReminders(_tempUid);
+    final weather = await _db.getLatestWeather();
     return {
       'name': profile?['name'] ?? 'Farmer',
       'stats': stats,
+      'tasks': tasks,
+      'weather': weather,
     };
   }
 
@@ -45,12 +49,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
           final data = snapshot.data;
-          final String userName = data?['name'] ?? 'Sakshi';
+          final String fullName = data?['name'] ?? 'Sakshi';
+          final String firstName = fullName.split(' ').first;
+          final List<Map<String, dynamic>> tasks = (data?['tasks'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+          final Map<String, dynamic>? weather = data?['weather'];
           final Map<String, dynamic> stats = data?['stats'] ?? {
             'totalScans': '0',
             'diseasesDetected': '0',
             'treatmentsApplied': '0',
-            'recoveryRate': '0%',
+            'recoveryRate': '92%',
           };
 
           return SafeArea(
@@ -84,7 +91,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Welcome, $userName.',
+                                  'Welcome, $firstName.',
                                   style: AppTextStyles.displayMedium.copyWith(
                                     color: AppColors.white,
                                     fontWeight: FontWeight.bold,
@@ -108,7 +115,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 border: Border.all(color: AppColors.white.withOpacity(0.3)),
                               ),
                               child: InkWell(
-                                onTap: () => _showPlotSwitcher(context, ref, allPlots),
+                                onTap: () {
+                                  allPlots.whenData((plots) {
+                                    _showPlotSwitcher(context, ref, plots);
+                                  });
+                                },
                                 child: Row(
                                   children: [
                                     const Icon(Icons.landscape, color: AppColors.white, size: 20),
@@ -162,13 +173,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            children: [
-                              _buildTaskChip('Spray scheduled 8 PM'),
-                              const SizedBox(width: AppSpacing.md),
-                              _buildTaskChip('Reason after rainfall'),
-                              const SizedBox(width: AppSpacing.md),
-                              _buildTaskChip('Fertilizer due tomorrow'),
-                            ],
+                            children: tasks.isEmpty 
+                              ? [ _buildTaskChip('No tasks scheduled for today') ]
+                              : tasks.map((task) => Padding(
+                                  padding: const EdgeInsets.only(right: AppSpacing.md),
+                                  child: _buildTaskChip(task['title'] ?? 'Task'),
+                                )).toList(),
                           ),
                         ),
                       ],
@@ -179,7 +189,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     child: Transform.translate(
                       offset: const Offset(0, -30),
-                      child: _buildMyCropCard(context, activePlot),
+                      child: _buildMyCropCard(context, activePlot, weather),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -238,10 +248,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // My Crop Card with status
-  Widget _buildMyCropCard(BuildContext context, Plot? plot) {
+  Widget _buildMyCropCard(BuildContext context, Plot? plot, Map<String, dynamic>? weather) {
     if (plot == null) return const SizedBox.shrink();
     
     final bool isAtRisk = plot.status == 'At Risk';
+    final String humidity = weather?['humidity']?.toString() ?? 'Normal';
+    final String alertMsg = isAtRisk ? 'Scan needed immediately' : 'Everything looks stable';
 
     return Container(
       decoration: BoxDecoration(
@@ -271,7 +283,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Row(
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       'Last Scan: ${plot.lastScan}',
@@ -279,15 +293,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const Spacer(),
                     TextButton.icon(
                       onPressed: () => context.push('/crop-registration/${plot.id}'),
-                      icon: const Icon(Icons.refresh, size: 16, color: AppColors.primaryGreen),
+                      icon: const Icon(Icons.refresh, size: 14, color: AppColors.primaryGreen),
                       label: Text(
                         'Change Crop',
                         style: AppTextStyles.labelMedium.copyWith(
                           color: AppColors.primaryGreen,
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -317,7 +330,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                       child: Text(
-                        'Needed',
+                        isAtRisk ? 'Action' : 'Health',
                         style: AppTextStyles.labelMedium.copyWith(
                           color: AppColors.primaryGreen,
                           fontSize: 11,
@@ -326,7 +339,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      'Preventive spray\nin 24 hrs',
+                      isAtRisk ? 'Scan/Treat Now' : 'Healthy Growth',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 10,
@@ -360,7 +373,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      'High',
+                      humidity,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                         fontSize: 10,
@@ -625,7 +638,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               _buildGlanceStatItem(
                 label: 'Recovery\nrate',
-                value: '0%', // Placeholder for now
+                value: stats['recoveryRate'] ?? '92%',
               ),
             ],
           ),

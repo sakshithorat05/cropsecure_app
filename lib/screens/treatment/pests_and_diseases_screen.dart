@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/plot_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
 import 'models/disease_details_model.dart';
 import 'widgets/disease_stage_section.dart';
 
-class PestsAndDiseasesScreen extends StatefulWidget {
+class PestsAndDiseasesScreen extends ConsumerStatefulWidget {
   const PestsAndDiseasesScreen({super.key});
 
   @override
-  State<PestsAndDiseasesScreen> createState() => _PestsAndDiseasesScreenState();
+  ConsumerState<PestsAndDiseasesScreen> createState() => _PestsAndDiseasesScreenState();
 }
 
-class _PestsAndDiseasesScreenState extends State<PestsAndDiseasesScreen> {
+class _PestsAndDiseasesScreenState extends ConsumerState<PestsAndDiseasesScreen> {
   final DatabaseService _db = DatabaseService();
   late Future<List<DiseaseDetailsModel>> _diseasesFuture;
 
@@ -46,6 +48,9 @@ class _PestsAndDiseasesScreenState extends State<PestsAndDiseasesScreen> {
       body: FutureBuilder<List<DiseaseDetailsModel>>(
         future: _diseasesFuture,
         builder: (context, snapshot) {
+          final activePlot = ref.watch(activePlotProvider);
+          final cropName = activePlot?.cropName ?? 'Your Crop';
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: AppColors.primaryGreen));
           }
@@ -53,7 +58,9 @@ class _PestsAndDiseasesScreenState extends State<PestsAndDiseasesScreen> {
             return Center(child: Text('Error loading pests data: ${snapshot.error}'));
           }
 
-          final allDiseases = snapshot.data ?? [];
+          final allDiseases = (snapshot.data ?? []).where((d) {
+            return d.cropAffected.toLowerCase() == cropName.toLowerCase();
+          }).toList();
 
           // Group by stage (handles case insensitivity)
           final seedling = allDiseases.where((d) => d.stages.any((s) => s.toLowerCase() == 'seedling')).toList();
@@ -73,7 +80,7 @@ class _PestsAndDiseasesScreenState extends State<PestsAndDiseasesScreen> {
                     children: [
                       Text('Pest & Diseases', style: AppTextStyles.headingLarge.copyWith(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('See relevant information on Jasmine', style: AppTextStyles.bodyMedium),
+                      Text('See relevant information on $cropName', style: AppTextStyles.bodyMedium),
                       const SizedBox(height: 16),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

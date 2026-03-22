@@ -6,6 +6,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/plot_provider.dart';
 import '../../core/services/database_service.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -28,13 +29,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activePlot = ref.watch(activePlotProvider);
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _profileFuture,
         builder: (context, snapshot) {
           final userData = snapshot.data;
-          final String userName = userData?['name'] ?? 'Farmer';
+          final String fullName = userData?['name'] ?? 'Farmer';
+          final String firstName = fullName.split(' ').first;
           final String userPhone = userData?['phone'] ?? '+91';
 
           return CustomScrollView(
@@ -60,7 +64,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        userName, 
+                        firstName, 
                         style: AppTextStyles.displayMedium.copyWith(
                           color: AppColors.white,
                           fontSize: 28,
@@ -102,20 +106,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           )
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: AppSpacing.md,
-                          crossAxisSpacing: AppSpacing.md,
-                          childAspectRatio: 2.5,
-                          children: [
-                            _buildDetailItem('Variety', 'Jasmine Sambangi'),
-                            _buildDetailItem('Location', 'Theni, TN'),
-                            _buildDetailItem('Land Size', '1.2 Hectares'),
-                            _buildDetailItem('Irrigation', 'Drip / Well'),
-                          ],
-                        ),
+                        if (activePlot != null)
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: AppSpacing.md,
+                            crossAxisSpacing: AppSpacing.md,
+                            childAspectRatio: 2.5,
+                            children: [
+                              _buildDetailItem('Survey No', activePlot.surveyNo),
+                              _buildDetailItem('Crop', activePlot.cropName),
+                              _buildDetailItem('Variety', activePlot.variety),
+                              _buildDetailItem('Land Size', '${activePlot.area} ${activePlot.unit}'),
+                              _buildDetailItem('Location', activePlot.location),
+                              _buildDetailItem('Season', activePlot.cropSeason ?? 'Not Set'),
+                            ],
+                          )
+                        else
+                          const Center(child: Text('No active plot selected')),
                       ],
                     ),
                   ),

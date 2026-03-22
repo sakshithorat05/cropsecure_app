@@ -37,8 +37,9 @@ class _CropFieldRegistrationScreenState extends ConsumerState<CropFieldRegistrat
     // Use addPostFrameCallback to access ref safely if needed, 
     // but here we can just read it once during init.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final plots = ref.read(plotsProvider);
-      final plot = plots.firstWhere((p) => p.id == widget.plotId);
+      final plotsAsync = ref.read(plotsProvider);
+      final plots = plotsAsync.value ?? [];
+      final plot = plots.firstWhere((p) => p.id == widget.plotId, orElse: () => plots.first);
       
       setState(() {
         _cropType = plot.cropType;
@@ -116,8 +117,9 @@ class _CropFieldRegistrationScreenState extends ConsumerState<CropFieldRegistrat
       ),
       body: Consumer(
         builder: (context, ref, child) {
-          final plots = ref.watch(plotsProvider);
-          final plot = plots.firstWhere((p) => p.id == widget.plotId, orElse: () => plots.first);
+          final plotsAsync = ref.watch(plotsProvider);
+          final plots = plotsAsync.value ?? [];
+          final plot = plots.firstWhere((p) => p.id == widget.plotId, orElse: () => plots.isNotEmpty ? plots.first : const Plot(id: '', surveyNo: '', cropName: '', variety: '', area: '', unit: '', ownerName: '', location: ''));
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -216,7 +218,9 @@ class _CropFieldRegistrationScreenState extends ConsumerState<CropFieldRegistrat
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      final plot = ref.read(plotsProvider).firstWhere((p) => p.id == widget.plotId);
+                      final plotsAsync = ref.read(plotsProvider);
+                      final plots = plotsAsync.value ?? [];
+                      final plot = plots.firstWhere((p) => p.id == widget.plotId);
                       
                       final updatedPlot = plot.copyWith(
                         cropName: _cropName ?? 'Not yet added',

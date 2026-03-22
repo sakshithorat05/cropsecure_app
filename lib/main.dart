@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'routes/app_router.dart';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/services/mongodb_service.dart';
 
 final getIt = GetIt.instance;
 
 void setupDependencyInjection() {
-  // getIt.registerLazySingleton<ApiService>(() => ApiService());
-  // getIt.registerLazySingleton<StorageService>(() => StorageService());
+  getIt.registerLazySingleton<MongoDBService>(() => MongoDBService());
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize MongoDB
+  final mongoService = MongoDBService();
+  await mongoService.connect();
+
   setupDependencyInjection();
 
   runApp(

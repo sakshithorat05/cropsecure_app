@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/services/database_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 
@@ -176,7 +177,48 @@ class _FarmerRegistrationScreenState extends State<FarmerRegistrationScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () => context.go('/auth/otp'),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final profileData = {
+                        "uid": "user_123", // Using temp UID for consistency with the rest of the app
+                        "name": _nameController.text,
+                        "phone": _mobileController.text,
+                        "profile": {
+                          "fatherName": _fatherNameController.text,
+                          "dob": _dobController.text,
+                          "gender": _gender,
+                          "age": _ageController.text,
+                          "caste": _caste,
+                          "isHandicapped": _isHandicapped,
+                          "isMinority": _isMinority,
+                        },
+                        "address": {
+                          "state": _state,
+                          "district": _district,
+                          "taluka": _taluka,
+                          "village": _village,
+                          "pincode": _pincodeController.text,
+                        },
+                        "kyc": {
+                          "aadhar": _aadharController.text,
+                          "pan": _panController.text,
+                          "ration": _rationController.text,
+                        }
+                      };
+
+                      try {
+                        final db = DatabaseService();
+                        await db.saveUserProfile("user_123", profileData);
+                        if (mounted) context.go('/auth/otp');
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to save profile: $e')),
+                          );
+                        }
+                      }
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGreen,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
