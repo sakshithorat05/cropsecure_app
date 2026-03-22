@@ -50,12 +50,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           };
 
           return Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/splash_bg.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
+            decoration: const BoxDecoration(),
             child: SafeArea(
               child: SingleChildScrollView(
                 child: Column(

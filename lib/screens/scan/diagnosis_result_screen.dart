@@ -30,7 +30,18 @@ class DiagnosisResultScreen extends StatelessWidget {
                 bottomRight: Radius.circular(20),
               ),
             ),
-            child: Text('Scan Affected Area', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white)),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => context.go('/home'),
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(width: 12),
+                Text('Diagnosis Result', style: AppTextStyles.displayMedium.copyWith(color: AppColors.white, fontSize: 24)),
+              ],
+            ),
           ),
           
           Expanded(

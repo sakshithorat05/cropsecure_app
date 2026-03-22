@@ -42,9 +42,9 @@ class _DiseaseDetailsScreenState extends State<DiseaseDetailsScreen> {
     final data = widget.data;
     
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryGreen),
