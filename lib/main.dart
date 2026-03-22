@@ -6,6 +6,9 @@ import 'routes/app_router.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/services/mongodb_service.dart';
+import 'core/services/cloudinary_service.dart';
+import 'providers/locale_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final getIt = GetIt.instance;
 
