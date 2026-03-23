@@ -24,8 +24,24 @@ class MongoDBService {
     }
   }
 
+  /// Ensure the DB is connected and open. Call this before using collections.
+  Future<void> ensureConnected() async {
+    if (_isConnected && _db != null) return;
+    await connect();
+  }
+
   mongo.DbCollection getCollection(String name) {
-    if (_db == null) throw Exception('MongoDB not connected');
+    if (_db == null) {
+      throw Exception('MongoDB not connected. Call await MongoDBService().connect() or ensureConnected() before using collections.');
+    }
+
+    // If the underlying Db hasn't finished opening, give a clear error instead
+    // of letting mongo_dart throw a low-level state error. We rely on
+    // `_isConnected` which is set to true after a successful `open()`.
+    if (!_isConnected) {
+      throw Exception('MongoDB not open. Call await MongoDBService().connect() or ensureConnected() before using collections.');
+    }
+
     return _db!.collection(name);
   }
 

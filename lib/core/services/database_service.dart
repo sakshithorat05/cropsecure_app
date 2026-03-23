@@ -23,7 +23,15 @@ class DatabaseService {
 
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
-      return await usersCollection.findOne(mongo.where.eq('uid', uid));
+      await _mongo.ensureConnected();
+    } catch (e) {
+      // DB not available — surface a clear error for callers to handle.
+      throw Exception('Failed to get user profile: MongoDB not available: $e');
+    }
+
+    try {
+      final coll = _mongo.getCollection('users');
+      return await coll.findOne(mongo.where.eq('uid', uid));
     } catch (e) {
       throw Exception('Failed to get user profile: $e');
     }
@@ -112,7 +120,15 @@ class DatabaseService {
 
   Future<List<DiseaseDetailsModel>> getAllDiseases() async {
     try {
-      final results = await diseasesCollection.find().toList();
+      await _mongo.ensureConnected();
+    } catch (e) {
+      // If connection can't be established, return empty list so UI can show a friendly state.
+      return [];
+    }
+
+    try {
+      final coll = _mongo.getCollection('pests_and_diseases');
+      final results = await coll.find().toList();
       return results.map((map) => DiseaseDetailsModel.fromJson(map, map['_id'].toHexString())).toList();
     } catch (e) {
       throw Exception('Failed to get all diseases: $e');

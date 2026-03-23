@@ -25,7 +25,18 @@ Future<void> main() async {
 
   // Initialize MongoDB
   final mongoService = MongoDBService();
-  await mongoService.connect();
+  try {
+    await mongoService.connect();
+  } catch (e, st) {
+    // Log the error but don't let a failed DB connection crash the app.
+    // The app can continue in offline/local mode; individual DB calls
+    // should handle the lack of connection as well.
+    // Example: MongoDBService.connect already prints errors; include stack for debugging.
+    // ignore: avoid_print
+    print('MongoDB connection failed during startup: $e');
+    // ignore: avoid_print
+    print(st);
+  }
 
   // Initialize Cloudinary
   final cloudinaryService = CloudinaryService();

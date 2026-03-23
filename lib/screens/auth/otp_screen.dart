@@ -42,9 +42,10 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
   }
 
   Widget _buildOtpBox(int index) {
-    return Container(
-      width: 48,
+    return SizedBox(
       height: 56,
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 40),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.6),
         borderRadius: BorderRadius.circular(12),
@@ -78,6 +79,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
             _focusNodes[index - 1].requestFocus();
           }
         },
+      ),
       ),
     );
   }
@@ -142,10 +144,14 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                         ),
                         const SizedBox(height: 40),
 
-                        // OTP Boxes
+                        // OTP Boxes (responsive)
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(6, (i) => _buildOtpBox(i)),
+                          children: List.generate(6, (i) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                              child: _buildOtpBox(i),
+                            ),
+                          )),
                         ),
 
                         const SizedBox(height: 40),
