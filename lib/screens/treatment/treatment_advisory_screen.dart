@@ -44,6 +44,7 @@ class TreatmentAdvisoryScreen extends ConsumerWidget {
               bottom: false,
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // HeaderSection (green background)
@@ -99,10 +100,10 @@ class TreatmentAdvisoryScreen extends ConsumerWidget {
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                          child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
                                 // Disease Card
                                 DiseaseCard(diseaseData: data.fullDiseaseDetails),
                                 const SizedBox(height: 24),
@@ -119,9 +120,9 @@ class TreatmentAdvisoryScreen extends ConsumerWidget {
                                 const SizedBox(height: 8),
 
                                 // Grid Section
-                                LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final bool isWideScreen = constraints.maxWidth > 600;
+                                Builder(
+                                  builder: (context) {
+                                    final bool isWideScreen = MediaQuery.of(context).size.width > 600;
                                     return GridView.count(
                                       crossAxisCount: isWideScreen ? 2 : 1,
                                       shrinkWrap: true,

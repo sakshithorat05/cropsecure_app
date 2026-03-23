@@ -80,6 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     final page = _pages[index];
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Expanded(
                           child: Padding(

@@ -10,11 +10,13 @@ class CloudinaryService {
   late String _cloudName;
   late String _apiKey;
   late String _apiSecret;
+  late String _uploadPreset;
 
   void initialize() {
     _cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
     _apiKey = dotenv.env['CLOUDINARY_API_KEY'] ?? '';
     _apiSecret = dotenv.env['CLOUDINARY_API_SECRET'] ?? '';
+    _uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'cropsecure_preset';
 
     if (_cloudName.isEmpty || _apiKey.isEmpty || _apiSecret.isEmpty) {
       throw Exception('Cloudinary credentials not found in .env file');
@@ -28,7 +30,7 @@ class CloudinaryService {
       final uri = Uri.parse('https://api.cloudinary.com/v1_1/$_cloudName/image/upload');
 
       final request = http.MultipartRequest('POST', uri);
-      request.fields['upload_preset'] = _apiKey;
+      request.fields['upload_preset'] = _uploadPreset;
       request.fields['folder'] = folder;
 
       request.files.add(

@@ -49,5 +49,7 @@
 	<string>This app needs camera access to scan plants for diseases.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs microphone access when using the camera.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to geotag your crop scans.</string>
 </dict>
 </plist>

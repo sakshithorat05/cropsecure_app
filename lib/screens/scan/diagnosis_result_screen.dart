@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -75,7 +76,7 @@ class DiagnosisResultScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text('Diagnosis Result', style: AppTextStyles.displayMedium),
                     const SizedBox(height: 20),
@@ -95,10 +96,18 @@ class DiagnosisResultScreen extends ConsumerWidget {
                           Container(
                             height: 200,
                             width: double.infinity,
-                            color: Colors.grey[300],
-                            child: const Center(
-                              child: Icon(Icons.image, size: 50, color: Colors.grey),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
                             ),
+                            child: scanState.imagePath != null
+                                ? Image.file(
+                                    File(scanState.imagePath!),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  )
+                                : const Center(
+                                    child: Icon(Icons.image, size: 50, color: Colors.grey),
+                                  ),
                           ),
                           
                           // Details
@@ -179,37 +188,47 @@ class DiagnosisResultScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () async {
-                              final db = DatabaseService();
-                              try {
-                                await db.addFarmHistoryLog('user_123', {
-                                  'type': 'scan',
-                                  'title': 'Scan Result',
-                                  'subtitle': '${result.diseaseName} detected',
-                                  'imageUrl': null,
-                                  'metadata': {
-                                    'disease': result.diseaseName,
-                                    'severity': result.severity,
-                                    'confidence': '${result.confidenceScore.toStringAsFixed(1)}%',
-                                  }
-                                });
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Result saved to Farm History')),
-                                  );
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error saving: $e')),
-                                  );
-                                }
-                              }
-                            },
-                            icon: const Icon(Icons.save, color: AppColors.white, size: 20),
-                            label: Text('Save Result', style: AppTextStyles.labelLarge),
+                            onPressed: scanState.isSaving || scanState.uploadedImageUrl != null
+                                ? null
+                                : () async {
+                                    final success = await ref.read(scanProvider.notifier).saveCurrentResult();
+                                    if (context.mounted) {
+                                      if (success) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Result saved to Farm History'),
+                                            backgroundColor: AppColors.success,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Failed to save result. Please check your internet.'),
+                                            backgroundColor: AppColors.error,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                            icon: scanState.isSaving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Icon(
+                                    scanState.uploadedImageUrl != null ? Icons.check_circle : Icons.save,
+                                    color: AppColors.white,
+                                    size: 20,
+                                  ),
+                            label: Text(
+                              scanState.isSaving 
+                                  ? 'Saving...' 
+                                  : (scanState.uploadedImageUrl != null ? 'Saved' : 'Save Result'),
+                              style: AppTextStyles.labelLarge,
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryLight,
+                              backgroundColor: scanState.uploadedImageUrl != null ? AppColors.success : AppColors.primaryLight,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),

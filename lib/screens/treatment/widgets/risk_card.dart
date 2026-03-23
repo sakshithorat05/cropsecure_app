@@ -114,6 +114,7 @@ class PestsCard extends StatelessWidget {
         ),
         child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               'Pests & Diseases',
@@ -123,7 +124,7 @@ class PestsCard extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-            Spacer(),
+            SizedBox(height: 16),
             Center(
               child: Text(
                 'View all pests and stages',
@@ -135,7 +136,6 @@ class PestsCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            Spacer(),
           ],
         ),
       ),

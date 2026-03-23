@@ -80,11 +80,11 @@ class _AnalyzingScreenState extends ConsumerState<AnalyzingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Column(
                 children: [
-                  _buildStep('Checking disease patterns', scanState.step.index >= ScanStep.analyzingStep1.index),
+                  _buildStep('Initializing & Location', scanState.step.index >= ScanStep.analyzingStep1.index),
                   const SizedBox(height: 16),
-                  _buildStep('Matching with AI models', scanState.step.index >= ScanStep.analyzingStep2.index),
+                  _buildStep('Running AI Inference', scanState.step.index >= ScanStep.analyzingStep2.index),
                   const SizedBox(height: 16),
-                  _buildStep('Estimating severity', scanState.step.index >= ScanStep.analyzingStep3.index),
+                  _buildStep('Generating results', scanState.step == ScanStep.success),
                 ],
               ),
             ),

@@ -65,7 +65,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           return SafeArea(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Green Header Section
                   Container(
@@ -109,8 +109,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               ],
                             ),
                             // Plot Switcher
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            Expanded(
+                              flex: 0,
+                              child: Container(
+                                constraints: const BoxConstraints(maxWidth: 140),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                               decoration: BoxDecoration(
                                 color: AppColors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -125,10 +128,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 child: Row(
                                   children: [
                                     const Icon(Icons.landscape, color: AppColors.white, size: 20),
-                                    const SizedBox(width: 8),
-                                    Flexible(
+                                    const SizedBox(width: 6),
+                                    Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
@@ -152,9 +155,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                         // Current Active Plot Summary
                         if (activePlot != null)
                           Container(
@@ -205,7 +209,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Disease Risk Alert
                         _buildDiseaseRiskAlert(context, activePlot),
