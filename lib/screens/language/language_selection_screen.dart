@@ -65,7 +65,7 @@ class _LanguageSelectionScreenState extends ConsumerState<LanguageSelectionScree
 
   void _onContinue() {
     ref.read(localeProvider.notifier).setLocale(selectedCode);
-    context.go('/auth/login');
+    context.go('/onboarding');
   }
 
   @override

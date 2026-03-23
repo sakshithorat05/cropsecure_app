@@ -51,7 +51,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
           final data = snapshot.data;
-          final String fullName = data?['name'] ?? 'Sakshi';
+          final String fullName = data?['name'] ?? 'Farmer';
           final String firstName = fullName.split(' ').first;
           final List<Map<String, dynamic>> tasks = (data?['tasks'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
           final Map<String, dynamic>? weather = data?['weather'];
@@ -126,18 +126,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   children: [
                                     const Icon(Icons.landscape, color: AppColors.white, size: 20),
                                     const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          activePlot?.surveyNo ?? 'No Plot',
-                                          style: AppTextStyles.labelMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'switch_plot'.tr(ref),
-                                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.white.withOpacity(0.8), fontSize: 10),
-                                        ),
-                                      ],
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            activePlot?.surveyNo ?? 'No Plot',
+                                            style: AppTextStyles.labelMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          Text(
+                                            'switch_plot'.tr(ref),
+                                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.white.withOpacity(0.8), fontSize: 10),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     const SizedBox(width: 4),
                                     const Icon(Icons.keyboard_arrow_down, color: AppColors.white, size: 18),

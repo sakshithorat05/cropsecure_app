@@ -9,6 +9,7 @@ import '../core/theme/app_colors.dart';
 // Import Screens
 import '../screens/splash/splash_screen.dart';
 import '../screens/language/language_selection_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/auth/otp_screen.dart';
@@ -61,6 +62,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/language',
             builder: (context, state) => const LanguageSelectionScreen(),
+          ),
+          GoRoute(
+            path: '/onboarding',
+            builder: (context, state) => const OnboardingScreen(),
           ),
           GoRoute(
             path: '/auth/login',
