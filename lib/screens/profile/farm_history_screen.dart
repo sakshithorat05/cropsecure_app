@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import 'models/farm_history_model.dart';
@@ -14,13 +15,18 @@ class FarmHistoryScreen extends StatefulWidget {
 
 class _FarmHistoryScreenState extends State<FarmHistoryScreen> {
   final DatabaseService _db = DatabaseService();
-  final String _tempUid = 'user_123'; // Temporary UID for development
+  final UserSessionService _session = UserSessionService();
   late Future<List<FarmHistoryModel>> _historyFuture;
 
   @override
   void initState() {
     super.initState();
-    _historyFuture = _db.getUserFarmHistory(_tempUid);
+    _historyFuture = _loadHistory();
+  }
+
+  Future<List<FarmHistoryModel>> _loadHistory() async {
+    final uid = await _session.getCurrentUserId();
+    return _db.getUserFarmHistory(uid);
   }
 
   @override

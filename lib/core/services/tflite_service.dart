@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 
@@ -33,8 +32,13 @@ class TFLiteService {
   ];
 
   static const List<String> _labels9 = [
-    'Anthracnose', 'Chlorosis', 'Dried Leaf', 'Healthy', 'Initial Stage', 
-    'Leaf Blight', 'Leaf Spot', 'Pest Damage', 'Rust Diseases'
+    'Anthracnose', 'Chlorosis', 'Dried leaf', 'Healthy', 'Initial stage', 
+    'Leaf blight', 'Leaf spot', 'Pest damage', 'Rust diseases'
+  ];
+
+  static const List<String> _labels10 = [
+    'Alternaria leaf blight', 'Anthracnose', 'Chlorosis', 'Dried leaf', 'Healthy', 
+    'Initial stage', 'Leaf blight', 'Leaf spot', 'Pest damage', 'Rust diseases'
   ];
 
   Future<void> loadModel() async {
@@ -45,7 +49,9 @@ class TFLiteService {
       final outputShape = _interpreter!.getOutputTensors().first.shape;
       final numClasses = outputShape[1];
       
-      if (numClasses == 9) {
+      if (numClasses == 10) {
+        _labels = _labels10;
+      } else if (numClasses == 9) {
         _labels = _labels9;
       } else if (numClasses == 38) {
         _labels = _fallbackLabels38;
@@ -108,13 +114,10 @@ class TFLiteService {
       String disease = _labels![maxIndex];
       double confidence = maxScore * 100;
 
-      // Determine severity based on confidence and disease (naive approach)
-      String severity = confidence > 80 ? 'High' : (confidence > 50 ? 'Medium' : 'Low');
-
       return {
         'diseaseName': disease,
         'confidenceScore': confidence,
-        'severity': severity,
+        'severity': _getSeverity(disease, confidence),
         'immediateAction': _getImmediateAction(disease),
       };
     }
@@ -122,11 +125,22 @@ class TFLiteService {
     throw Exception('Inference failed to produce a result');
   }
 
+  String _getSeverity(String disease, double confidence) {
+    String d = disease.toLowerCase();
+    if (d.contains('healthy')) return 'None';
+    if (d.contains('dried') || d.contains('blight')) return 'High';
+    if (confidence < 40) return 'Low';
+    return 'Medium';
+  }
+
   String _getImmediateAction(String disease) {
-    if (disease.contains('Healthy')) return 'Monitor crop regularly for any changes.';
-    if (disease.contains('Late Blight')) return 'Apply fungicide immediately to prevent spread.';
-    if (disease.contains('Bacterial Spot')) return 'Remove infected leaves and avoid overhead watering.';
-    return 'Consult an agricultural expert for specific treatment.';
+    String d = disease.toLowerCase();
+    if (d.contains('healthy')) return 'Keep monitoring your crops regularly.';
+    if (d.contains('blight')) return 'Apply recommended fungicide and remove highly infected leaves.';
+    if (d.contains('spot')) return 'Improve air circulation and avoid overhead watering.';
+    if (d.contains('rust')) return 'Apply sulfur or copper-based fungicides.';
+    if (d.contains('pest')) return 'Identify the pest and apply organic neem oil or suitable pesticide.';
+    return 'Consult your nearest agricultural extension officer for detailed advice.';
   }
 
   void dispose() {

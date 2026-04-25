@@ -8,6 +8,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/plot_provider.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../providers/locale_provider.dart';
 import '../../core/localization/translation_extension.dart';
 
@@ -20,13 +21,18 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final DatabaseService _db = DatabaseService();
-  final String _tempUid = 'user_123';
+  final UserSessionService _session = UserSessionService();
   late Future<Map<String, dynamic>?> _profileFuture;
 
   @override
   void initState() {
     super.initState();
-    _profileFuture = _db.getUserProfile(_tempUid);
+    _profileFuture = _loadProfile();
+  }
+
+  Future<Map<String, dynamic>?> _loadProfile() async {
+    final uid = await _session.getCurrentUserId();
+    return _db.getUserProfile(uid);
   }
 
   @override
@@ -299,7 +305,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         Navigator.pop(context);
         // Force state refresh
         setState(() {
-          _profileFuture = _db.getUserProfile(_tempUid);
+          _profileFuture = _loadProfile();
         });
       },
     );

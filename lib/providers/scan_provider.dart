@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../core/services/tflite_service.dart';
 import '../core/services/cloudinary_service.dart';
 import '../core/services/database_service.dart';
-import '../screens/profile/models/farm_history_model.dart';
+import '../core/services/user_session_service.dart';
 
 enum ScanStep {
   initial,
@@ -74,9 +74,10 @@ class ScanNotifier extends Notifier<ScanState> {
   @override
   ScanState build() => const ScanState(step: ScanStep.initial);
 
-  final TFLiteService _tflite = TFLiteService();
+  final TFLiteService _tfliteService = TFLiteService();
   final CloudinaryService _cloudinary = CloudinaryService();
   final DatabaseService _db = DatabaseService();
+  final UserSessionService _session = UserSessionService();
 
   Future<void> setImage(String path) async {
     state = ScanState(
@@ -103,11 +104,18 @@ class ScanNotifier extends Notifier<ScanState> {
         print('--- Location Error: $e ---');
       }
 
-      await _tflite.loadModel();
+      // Ensure model is ready (already pre-loaded in main.dart but safety check)
+      await _tfliteService.loadModel();
 
       // Phase 2: AI Inference
+      print('--- ScanNotifier: Starting AI Inference phase ---');
       state = state.copyWith(step: ScanStep.analyzingStep2, location: currentPosition);
-      final inferenceResult = await _tflite.runInference(File(state.imagePath!));
+      final inferenceResult = await _tfliteService.runInference(File(state.imagePath!));
+      print('--- ScanNotifier: AI Inference finished ---');
+      
+      // Phase 3: Transition to results
+      print('--- ScanNotifier: Transitioning to results ---');
+      state = state.copyWith(step: ScanStep.analyzingStep3);
       
       final result = DiagnosisResult(
         diseaseName: inferenceResult['diseaseName'],
@@ -117,13 +125,15 @@ class ScanNotifier extends Notifier<ScanState> {
       );
 
       // We stop here and show the result to the user.
-      // Saving to DB happens manually in saveCurrentResult().
+      // Small artificial delay to ensure the UI feels balanced before jumping to result
+      await Future.delayed(const Duration(milliseconds: 800));
+
       state = state.copyWith(
         step: ScanStep.success,
         result: result,
       );
     } catch (e) {
-      print('--- Analysis Error: $e ---');
+      print('--- Analysis Error in ScanNotifier: $e ---');
       state = state.copyWith(step: ScanStep.error);
     }
   }
@@ -139,7 +149,7 @@ class ScanNotifier extends Notifier<ScanState> {
       final imageUrl = await _cloudinary.uploadImage(File(state.imagePath!));
       
       // Step 2: Save to MongoDB
-      const String uid = 'user_123'; 
+      final String uid = await _session.getCurrentUserId(); 
       final result = state.result!;
       final currentPosition = state.location;
       

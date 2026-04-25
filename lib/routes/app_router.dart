@@ -22,7 +22,6 @@ import '../screens/scan/diagnosis_result_screen.dart';
 import '../screens/treatment/treatment_advisory_screen.dart';
 import '../screens/treatment/disease_details_screen.dart';
 import '../screens/treatment/models/disease_details_model.dart';
-import '../screens/treatment/models/treatment_advisory_model.dart';
 import '../screens/treatment/chemical_treatment_screen.dart';
 import '../screens/treatment/organic_treatment_screen.dart';
 import '../screens/treatment/pests_and_diseases_screen.dart';

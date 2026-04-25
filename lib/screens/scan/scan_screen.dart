@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -85,6 +86,19 @@ class _ScanScreenState extends State<ScanScreen> {
       }
     } catch (e) {
       debugPrint("Take picture error: $e");
+    }
+  }
+  
+  Future<void> _pickFromGallery() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (image != null && mounted) {
+        context.push('/home/scan/preview', extra: image.path);
+      }
+    } catch (e) {
+      debugPrint("Pick gallery error: $e");
     }
   }
 
@@ -181,9 +195,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   children: [
                     // Gallery Button
                     IconButton(
-                      onPressed: () {
-                        debugPrint("Gallery button pressed");
-                      },
+                      onPressed: _pickFromGallery,
                       icon: const Icon(Icons.photo_library, color: Colors.white, size: 30),
                     ),
                     

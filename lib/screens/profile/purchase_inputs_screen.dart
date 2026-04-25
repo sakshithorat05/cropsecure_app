@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_spacing.dart';
@@ -14,13 +15,18 @@ class PurchaseInputsScreen extends StatefulWidget {
 
 class _PurchaseInputsScreenState extends State<PurchaseInputsScreen> {
   final DatabaseService _db = DatabaseService();
-  final String _tempUid = 'user_123';
+  final UserSessionService _session = UserSessionService();
   late Future<List<PurchaseModel>> _purchaseFuture;
 
   @override
   void initState() {
     super.initState();
-    _purchaseFuture = _db.getUserPurchases(_tempUid);
+    _purchaseFuture = _loadPurchases();
+  }
+
+  Future<List<PurchaseModel>> _loadPurchases() async {
+    final uid = await _session.getCurrentUserId();
+    return _db.getUserPurchases(uid);
   }
 
   @override

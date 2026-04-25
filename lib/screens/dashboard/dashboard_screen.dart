@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../providers/plot_provider.dart';
 import '../../core/localization/translation_extension.dart';
-import '../../providers/locale_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -18,7 +18,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final DatabaseService _db = DatabaseService();
-  final String _tempUid = 'user_123';
+  final UserSessionService _session = UserSessionService();
   late Future<Map<String, dynamic>> _dashboardDataFuture;
 
   @override
@@ -28,9 +28,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<Map<String, dynamic>> _loadDashboardData() async {
-    final profile = await _db.getUserProfile(_tempUid);
-    final stats = await _db.getDashboardStats(_tempUid);
-    final tasks = await _db.getUserReminders(_tempUid);
+    final uid = await _session.getCurrentUserId();
+    final profile = await _db.getUserProfile(uid);
+    final stats = await _db.getDashboardStats(uid);
+    final tasks = await _db.getUserReminders(uid);
     final weather = await _db.getLatestWeather();
     return {
       'name': profile?['name'] ?? 'Farmer',
@@ -266,7 +267,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     
     final bool isAtRisk = plot.status == 'At Risk';
     final String humidity = weather?['humidity']?.toString() ?? 'Normal';
-    final String alertMsg = isAtRisk ? 'Scan needed immediately' : 'Everything looks stable';
 
     return Container(
       decoration: BoxDecoration(
@@ -739,7 +739,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ref.read(activePlotProvider.notifier).setActivePlot(plot);
                   Navigator.pop(context);
                 },
-              )).toList(),
+              )),
               const SizedBox(height: 20),
             ],
           ),

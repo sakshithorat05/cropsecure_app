@@ -30,8 +30,14 @@ class TreatmentProvider with ChangeNotifier {
       _errorMessage = null;
     } catch (e) {
       debugPrint('Error loading advisory: $e');
-      _errorMessage = 'Failed to load treatment advisory: $e';
-      _advisoryData = null;
+      final errorText = e.toString();
+      if (errorText.contains('No diseases found in database')) {
+        _advisoryData = null;
+        _errorMessage = null;
+      } else {
+        _errorMessage = 'Failed to load treatment advisory: $e';
+        _advisoryData = null;
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

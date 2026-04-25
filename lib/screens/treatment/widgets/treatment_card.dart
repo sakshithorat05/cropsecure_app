@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/disease_details_model.dart';
-import '../models/treatment_advisory_model.dart';
 
 class TreatmentCard extends StatelessWidget {
   final DiseaseTreatmentModel treatment;

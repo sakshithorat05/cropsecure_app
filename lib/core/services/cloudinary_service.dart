@@ -19,7 +19,8 @@ class CloudinaryService {
     _uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'cropsecure_preset';
 
     if (_cloudName.isEmpty || _apiKey.isEmpty || _apiSecret.isEmpty) {
-      throw Exception('Cloudinary credentials not found in .env file');
+      print('--- WARNING: Cloudinary credentials not found in .env file ---');
+      print('--- Image uploads will fail until credentials are provided ---');
     }
   }
 

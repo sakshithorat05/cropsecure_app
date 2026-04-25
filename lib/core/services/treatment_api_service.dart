@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../screens/treatment/models/disease_details_model.dart';
 import '../../screens/treatment/models/treatment_advisory_model.dart';
 import 'database_service.dart';

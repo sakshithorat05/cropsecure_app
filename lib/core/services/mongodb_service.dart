@@ -8,17 +8,38 @@ class MongoDBService {
 
   mongo.Db? _db;
   bool _isConnected = false;
+  Future<void>? _connecting;
 
   Future<void> connect() async {
     if (_isConnected && _db != null) return;
 
+    if (_connecting != null) {
+      return _connecting!;
+    }
+
+    _connecting = _connectInternal();
+    try {
+      await _connecting;
+    } finally {
+      _connecting = null;
+    }
+  }
+
+  Future<void> _connectInternal() async {
+    if (_isConnected && _db != null) return;
+
     try {
       final url = dotenv.env['MONGODB_URL'] ?? '';
+      if (url.trim().isEmpty) {
+        throw Exception('MONGODB_URL is missing from .env');
+      }
       _db = await mongo.Db.create(url);
       await _db!.open();
       _isConnected = true;
       print('--- Connected to MongoDB Atlas ---');
     } catch (e) {
+      _db = null;
+      _isConnected = false;
       print('--- MongoDB Connection Error: $e ---');
       rethrow;
     }
@@ -47,6 +68,7 @@ class MongoDBService {
 
   Future<void> close() async {
     await _db?.close();
+    _db = null;
     _isConnected = false;
   }
 }

@@ -1,0 +1,10 @@
+Alternaria_leaf_blight
+anthracnose
+chlorosis
+dried_leaf
+healthy
+initial_stage
+leaf_blight
+leaf_spot
+pest_damage
+rust_diseases

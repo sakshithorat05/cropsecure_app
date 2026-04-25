@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/disease_details_model.dart';
 
 class StageCard extends StatelessWidget {
-  final IdentifyStage stage;
+  final IdentifyStageModel stage;
 
   const StageCard({
     super.key,

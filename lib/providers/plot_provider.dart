@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/services/database_service.dart';
+import '../core/services/user_session_service.dart';
 
 class Plot {
   final String id;
@@ -201,16 +202,18 @@ final List<Plot> mockPlots = [
 
 class PlotsNotifier extends AsyncNotifier<List<Plot>> {
   final DatabaseService _db = DatabaseService();
-  final String _tempUid = 'user_123';
+  final UserSessionService _session = UserSessionService();
 
   @override
   Future<List<Plot>> build() async {
-    return _db.getUserPlots(_tempUid);
+    final uid = await _session.getCurrentUserId();
+    return _db.getUserPlots(uid);
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _db.getUserPlots(_tempUid));
+    final uid = await _session.getCurrentUserId();
+    state = await AsyncValue.guard(() => _db.getUserPlots(uid));
   }
 
   Future<void> addPlot(Plot plot) async {

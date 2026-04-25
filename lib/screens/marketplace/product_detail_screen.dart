@@ -8,10 +8,8 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/app_assets.dart';
 import '../../models/product_model.dart';
-import '../../models/cart_item_model.dart';
 import '../../providers/marketplace_provider.dart';
 import '../../providers/cart_provider.dart';
-import '../../widgets/common/product_card.dart';
 
 // Simulated API call for a single product
 final productDetailProvider = FutureProvider.family<ProductModel, String>((ref, productId) async {

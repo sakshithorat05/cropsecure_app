@@ -4,7 +4,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import 'models/disease_details_model.dart';
 import '../../core/localization/translation_extension.dart';
-import '../../providers/locale_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class DiseaseDetailsScreen extends ConsumerStatefulWidget {

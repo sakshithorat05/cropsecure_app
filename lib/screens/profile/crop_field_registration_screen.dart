@@ -304,7 +304,7 @@ class _CropFieldRegistrationScreenState extends ConsumerState<CropFieldRegistrat
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: valueExists ? value : null,
+          initialValue: valueExists ? value : null,
           style: const TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,

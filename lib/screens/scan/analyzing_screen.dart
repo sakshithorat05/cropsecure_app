@@ -80,14 +80,38 @@ class _AnalyzingScreenState extends ConsumerState<AnalyzingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Column(
                 children: [
-                  _buildStep('Initializing & Location', scanState.step.index >= ScanStep.analyzingStep1.index),
+                  _buildStep('Initializing & Location', scanState.step.index >= ScanStep.analyzingStep2.index && scanState.step != ScanStep.error),
                   const SizedBox(height: 16),
-                  _buildStep('Running AI Inference', scanState.step.index >= ScanStep.analyzingStep2.index),
+                  _buildStep('Running AI Inference', scanState.step.index >= ScanStep.analyzingStep3.index && scanState.step != ScanStep.error),
                   const SizedBox(height: 16),
-                  _buildStep('Generating results', scanState.step == ScanStep.success),
+                  _buildStep('Generating results', scanState.step.index >= ScanStep.success.index && scanState.step != ScanStep.error),
                 ],
               ),
             ),
+
+            if (scanState.step == ScanStep.error) ...[
+              const SizedBox(height: 40),
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  'Analysis failed. Please try again with a clearer photo.',
+                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: Text('Go Back', style: AppTextStyles.labelLarge),
+              ),
+            ],
             
             const Spacer(),
           ],

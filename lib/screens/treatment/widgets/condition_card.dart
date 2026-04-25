@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/disease_details_model.dart';
 
 class ConditionCard extends StatelessWidget {
-  final FavourableCondition condition;
+  final FavourableConditionModel condition;
 
   const ConditionCard({
     super.key,
@@ -15,11 +15,11 @@ class ConditionCard extends StatelessWidget {
       width: 160,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: condition.backgroundColor.withAlpha(38),
+        decoration: BoxDecoration(
+        color: condition.getColor().withAlpha(38),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: condition.backgroundColor.withAlpha(77),
+          color: condition.getColor().withAlpha(77),
         ),
       ),
       child: Column(
@@ -32,8 +32,8 @@ class ConditionCard extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              condition.icon,
-              color: condition.backgroundColor.withAlpha(204),
+              condition.getIcon(),
+              color: condition.getColor().withAlpha(204),
               size: 24,
             ),
           ),

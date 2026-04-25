@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../core/theme/app_colors.dart';
 import 'models/disease_details_model.dart';
 import 'widgets/info_card.dart';
@@ -221,7 +222,8 @@ class OrganicTreatmentScreen extends StatelessWidget {
                   onPressed: () async {
                     try {
                       final db = DatabaseService();
-                      await db.addFarmHistoryLog("user_123", {
+                      final uid = await UserSessionService().getCurrentUserId();
+                      await db.addFarmHistoryLog(uid, {
                         "type": "treatment",
                         "title": "Treatment Applied",
                         "subtitle": data.title,
@@ -275,22 +277,4 @@ class OrganicTreatmentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey.shade700,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
 }

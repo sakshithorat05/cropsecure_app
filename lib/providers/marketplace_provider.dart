@@ -86,8 +86,9 @@ class MarketplaceNotifier extends Notifier<MarketplaceState> {
     
     // Tab filtering: 0 = Fungicide, 1 = Fertiliser, 2 = Pesticide
     String tabCategory = '';
-    if (state.selectedTab == 0) tabCategory = 'fungicide';
-    else if (state.selectedTab == 1) tabCategory = 'fertiliser';
+    if (state.selectedTab == 0) {
+      tabCategory = 'fungicide';
+    } else if (state.selectedTab == 1) tabCategory = 'fertiliser';
     else if (state.selectedTab == 2) tabCategory = 'pesticide';
     
     if (tabCategory.isNotEmpty) {

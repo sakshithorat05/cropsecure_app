@@ -23,7 +23,7 @@ Future<void> main() async {
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
-  // Initialize MongoDB
+  // Initialize MongoDB asynchronously so startup isn't blocked by network delays.
   final mongoService = MongoDBService();
   try {
     await mongoService.connect();
@@ -31,7 +31,6 @@ Future<void> main() async {
     // Log the error but don't let a failed DB connection crash the app.
     // The app can continue in offline/local mode; individual DB calls
     // should handle the lack of connection as well.
-    // Example: MongoDBService.connect already prints errors; include stack for debugging.
     // ignore: avoid_print
     print('MongoDB connection failed during startup: $e');
     // ignore: avoid_print

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/database_service.dart';
+import '../../core/services/user_session_service.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 
 class FarmerRegistrationScreen extends StatefulWidget {
   const FarmerRegistrationScreen({super.key});
@@ -180,10 +180,11 @@ class _FarmerRegistrationScreenState extends State<FarmerRegistrationScreen> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final profileData = {
-                        "uid": "user_123", // Using temp UID for consistency with the rest of the app
+                        "uid": UserSessionService.fallbackUserId,
                         "name": _nameController.text,
                         "phone": _mobileController.text,
                         "profile": {
+                          "farmerType": _farmerType,
                           "fatherName": _fatherNameController.text,
                           "dob": _dobController.text,
                           "gender": _gender,
@@ -191,6 +192,8 @@ class _FarmerRegistrationScreenState extends State<FarmerRegistrationScreen> {
                           "caste": _caste,
                           "isHandicapped": _isHandicapped,
                           "isMinority": _isMinority,
+                          "hobali": _hobali,
+                          "gramaPanchayath": _gramaPanchayath,
                         },
                         "address": {
                           "state": _state,
@@ -208,7 +211,8 @@ class _FarmerRegistrationScreenState extends State<FarmerRegistrationScreen> {
 
                       try {
                         final db = DatabaseService();
-                        await db.saveUserProfile("user_123", profileData);
+                        await db.saveUserProfile(UserSessionService.fallbackUserId, profileData);
+                        await UserSessionService().setCurrentUserId(UserSessionService.fallbackUserId);
                         if (mounted) context.go('/auth/otp');
                       } catch (e) {
                         if (mounted) {

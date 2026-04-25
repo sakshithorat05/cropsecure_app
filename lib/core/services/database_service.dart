@@ -39,6 +39,8 @@ class DatabaseService {
 
   Future<void> saveUserProfile(String uid, Map<String, dynamic> profileData) async {
     try {
+      await _mongo.ensureConnected();
+
       await usersCollection.update(
         mongo.where.eq('uid', uid),
         {r'$set': profileData},
@@ -53,6 +55,8 @@ class DatabaseService {
 
   Future<List<Map<String, dynamic>>> getUserReminders(String uid) async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await remindersCollection
           .find(mongo.where.eq('uid', uid).sortBy('dueDate'))
           .toList();
@@ -66,6 +70,8 @@ class DatabaseService {
 
   Future<void> addPlot(Plot plot) async {
     try {
+      await _mongo.ensureConnected();
+
       await plotsCollection.insert(plot.toMap());
     } catch (e) {
       throw Exception('Failed to add plot: $e');
@@ -74,6 +80,8 @@ class DatabaseService {
 
   Future<List<Plot>> getUserPlots(String ownerId) async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await plotsCollection.find(mongo.where.eq('ownerId', ownerId)).toList();
       return results.map((map) => Plot.fromMap(map)).toList();
     } catch (e) {
@@ -83,6 +91,8 @@ class DatabaseService {
 
   Future<void> updatePlot(Plot plot) async {
     try {
+      await _mongo.ensureConnected();
+
       await plotsCollection.update(
         mongo.where.id(mongo.ObjectId.fromHexString(plot.id)),
         plot.toMap(),
@@ -96,6 +106,8 @@ class DatabaseService {
 
   Future<void> addFarmHistoryLog(String uid, Map<String, dynamic> logData) async {
     try {
+      await _mongo.ensureConnected();
+
       logData['uid'] = uid;
       logData['createdAt'] = DateTime.now();
       await farmHistoryCollection.insert(logData);
@@ -106,13 +118,15 @@ class DatabaseService {
 
   Future<List<FarmHistoryModel>> getUserFarmHistory(String uid) async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await farmHistoryCollection
           .find(mongo.where.eq('uid', uid).sortBy('createdAt', descending: true))
           .toList();
 
       return results.map((map) => FarmHistoryModel.fromMap(map)).toList();
     } catch (e) {
-      throw Exception('Failed to get farm history: $e');
+      return [];
     }
   }
 
@@ -137,13 +151,15 @@ class DatabaseService {
 
   Future<List<DiseaseDetailsModel>> getDiseasesByCrop(String cropName) async {
     try {
+      await _mongo.ensureConnected();
+
       // Use case-insensitive regex for better matching
       final results = await diseasesCollection.find(
         mongo.where.match('cropAffected', '^$cropName\$', caseInsensitive: true)
       ).toList();
       return results.map((map) => DiseaseDetailsModel.fromJson(map, map['_id'].toHexString())).toList();
     } catch (e) {
-      throw Exception('Failed to get diseases for $cropName: $e');
+      return [];
     }
   }
 
@@ -151,6 +167,8 @@ class DatabaseService {
 
   Future<Map<String, dynamic>?> getLatestWeather() async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await weatherLogsCollection
           .find(mongo.where.sortBy('timestamp', descending: true).limit(1))
           .toList();
@@ -164,10 +182,12 @@ class DatabaseService {
 
   Future<List<ProductModel>> getAllProducts() async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await productsCollection.find().toList();
       return results.map((map) => ProductModel.fromMap(map, map['_id'].toHexString())).toList();
     } catch (e) {
-      throw Exception('Failed to get products: $e');
+      return [];
     }
   }
 
@@ -199,6 +219,8 @@ class DatabaseService {
 
   Future<List<PurchaseModel>> getUserPurchases(String uid) async {
     try {
+      await _mongo.ensureConnected();
+
       final results = await purchasesCollection
           .find(mongo.where.eq('uid', uid).sortBy('purchaseDate', descending: true))
           .toList();
@@ -211,6 +233,8 @@ class DatabaseService {
 
   Future<void> purchaseProduct(String uid, PurchaseModel purchase) async {
     try {
+      await _mongo.ensureConnected();
+
       final purchaseData = {
         'uid': uid,
         'productName': purchase.productName,
