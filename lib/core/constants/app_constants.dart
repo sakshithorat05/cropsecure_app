@@ -2,8 +2,12 @@
 final class AppConstants {
   AppConstants._();
 
-  /// API base URL placeholder
-  static const String apiBaseUrl = 'https://api.cropsecure.example.com';
+  /// Android emulator uses 10.0.2.2; desktop/web can override this with
+  /// --dart-define=CROPSECURE_API_URL=http://127.0.0.1:8000.
+  static const String apiBaseUrl = String.fromEnvironment(
+    'CROPSECURE_API_URL',
+    defaultValue: 'http://10.0.2.2:8000',
+  );
   
   /// Camera scan corner overlay size
   static const double scanOverlayCornerSize = 32.0;

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../core/services/tflite_service.dart';
@@ -13,12 +12,12 @@ enum ScanStep {
   analyzingStep2,
   analyzingStep3,
   success,
-  error
+  error,
 }
 
 class DiagnosisResult {
   final String diseaseName;
-  final String severity; 
+  final String severity;
   final double confidenceScore;
   final String immediateAction;
 
@@ -80,10 +79,7 @@ class ScanNotifier extends Notifier<ScanState> {
   final UserSessionService _session = UserSessionService();
 
   Future<void> setImage(String path) async {
-    state = ScanState(
-      step: ScanStep.initial,
-      imagePath: path,
-    );
+    state = ScanState(step: ScanStep.initial, imagePath: path);
   }
 
   Future<void> startAnalysis() async {
@@ -95,7 +91,7 @@ class ScanNotifier extends Notifier<ScanState> {
     try {
       // Phase 1: Initialize & Get Location
       state = state.copyWith(step: ScanStep.analyzingStep1);
-      
+
       // Fetch location concurrently with initialization
       Position? currentPosition;
       try {
@@ -109,14 +105,19 @@ class ScanNotifier extends Notifier<ScanState> {
 
       // Phase 2: AI Inference
       print('--- ScanNotifier: Starting AI Inference phase ---');
-      state = state.copyWith(step: ScanStep.analyzingStep2, location: currentPosition);
-      final inferenceResult = await _tfliteService.runInference(File(state.imagePath!));
+      state = state.copyWith(
+        step: ScanStep.analyzingStep2,
+        location: currentPosition,
+      );
+      final inferenceResult = await _tfliteService.runInference(
+        state.imagePath!,
+      );
       print('--- ScanNotifier: AI Inference finished ---');
-      
+
       // Phase 3: Transition to results
       print('--- ScanNotifier: Transitioning to results ---');
       state = state.copyWith(step: ScanStep.analyzingStep3);
-      
+
       final result = DiagnosisResult(
         diseaseName: inferenceResult['diseaseName'],
         severity: inferenceResult['severity'],
@@ -128,10 +129,7 @@ class ScanNotifier extends Notifier<ScanState> {
       // Small artificial delay to ensure the UI feels balanced before jumping to result
       await Future.delayed(const Duration(milliseconds: 800));
 
-      state = state.copyWith(
-        step: ScanStep.success,
-        result: result,
-      );
+      state = state.copyWith(step: ScanStep.success, result: result);
     } catch (e) {
       print('--- Analysis Error in ScanNotifier: $e ---');
       state = state.copyWith(step: ScanStep.error);
@@ -139,20 +137,21 @@ class ScanNotifier extends Notifier<ScanState> {
   }
 
   Future<bool> saveCurrentResult() async {
-    if (state.result == null || state.imagePath == null || state.isSaving) return false;
+    if (state.result == null || state.imagePath == null || state.isSaving)
+      return false;
 
     state = state.copyWith(isSaving: true);
     try {
       _cloudinary.initialize();
-      
+
       // Step 1: Upload to Cloudinary
-      final imageUrl = await _cloudinary.uploadImage(File(state.imagePath!));
-      
+      final imageUrl = await _cloudinary.uploadImagePath(state.imagePath!);
+
       // Step 2: Save to MongoDB
-      final String uid = await _session.getCurrentUserId(); 
+      final String uid = await _session.getCurrentUserId();
       final result = state.result!;
       final currentPosition = state.location;
-      
+
       await _db.addFarmHistoryLog(uid, {
         'type': 'scan',
         'title': 'Crop Scan',
@@ -163,11 +162,13 @@ class ScanNotifier extends Notifier<ScanState> {
           'severity': result.severity,
           'confidence': result.confidenceScore,
           'action': result.immediateAction,
-          'location': currentPosition != null ? {
-            'lat': currentPosition.latitude,
-            'lng': currentPosition.longitude,
-          } : null,
-        }
+          'location': currentPosition != null
+              ? {
+                  'lat': currentPosition.latitude,
+                  'lng': currentPosition.longitude,
+                }
+              : null,
+        },
       });
 
       state = state.copyWith(isSaving: false, uploadedImageUrl: imageUrl);
@@ -195,10 +196,12 @@ class ScanNotifier extends Notifier<ScanState> {
         return Future.error('Location permissions are denied');
       }
     }
-    
+
     if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied, we cannot request permissions.');
-    } 
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+    }
 
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,

@@ -54,14 +54,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           final data = snapshot.data;
           final String fullName = data?['name'] ?? 'Farmer';
           final String firstName = fullName.split(' ').first;
-          final List<Map<String, dynamic>> tasks = (data?['tasks'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+          final List<Map<String, dynamic>> tasks =
+              (data?['tasks'] as List<dynamic>?)
+                  ?.cast<Map<String, dynamic>>() ??
+              [];
           final Map<String, dynamic>? weather = data?['weather'];
-          final Map<String, dynamic> stats = data?['stats'] ?? {
-            'totalScans': '0',
-            'diseasesDetected': '0',
-            'treatmentsApplied': '0',
-            'recoveryRate': '92%',
-          };
+          final Map<String, dynamic> stats =
+              data?['stats'] ??
+              {
+                'totalScans': '0',
+                'diseasesDetected': '0',
+                'treatmentsApplied': '0',
+                'recoveryRate': '92%',
+              };
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -113,53 +118,78 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             Expanded(
                               flex: 0,
                               child: Container(
-                                constraints: const BoxConstraints(maxWidth: 140),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: AppColors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.white.withOpacity(0.3)),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  allPlots.whenData((plots) {
-                                    _showPlotSwitcher(context, ref, plots);
-                                  });
-                                },
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.landscape, color: AppColors.white, size: 20),
-                                    const SizedBox(width: 6),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            activePlot?.surveyNo ?? 'No Plot',
-                                            style: AppTextStyles.labelMedium.copyWith(color: AppColors.white, fontWeight: FontWeight.bold),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                          Text(
-                                            'switch_plot'.tr(ref),
-                                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.white.withOpacity(0.8), fontSize: 10),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ],
+                                constraints: const BoxConstraints(
+                                  maxWidth: 140,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColors.white.withOpacity(0.3),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    allPlots.whenData((plots) {
+                                      _showPlotSwitcher(context, ref, plots);
+                                    });
+                                  },
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.landscape,
+                                        color: AppColors.white,
+                                        size: 20,
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    const Icon(Icons.keyboard_arrow_down, color: AppColors.white, size: 18),
-                                  ],
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              activePlot?.surveyNo ?? 'No Plot',
+                                              style: AppTextStyles.labelMedium
+                                                  .copyWith(
+                                                    color: AppColors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                            Text(
+                                              'switch_plot'.tr(ref),
+                                              style: AppTextStyles.bodySmall
+                                                  .copyWith(
+                                                    color: AppColors.white
+                                                        .withOpacity(0.8),
+                                                    fontSize: 10,
+                                                  ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: AppColors.white,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
                         // Current Active Plot Summary
                         if (activePlot != null)
                           Container(
@@ -170,12 +200,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.info_outline, color: AppColors.white, size: 16),
+                                const Icon(
+                                  Icons.info_outline,
+                                  color: AppColors.white,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'Active: ${activePlot.cropName} (${activePlot.variety}) - ${activePlot.area} ${activePlot.unit}',
-                                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.white, fontSize: 12),
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.white,
+                                      fontSize: 12,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -187,12 +224,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            children: tasks.isEmpty 
-                              ? [ _buildTaskChip('no_tasks'.tr(ref)) ]
-                              : tasks.map((task) => Padding(
-                                  padding: const EdgeInsets.only(right: AppSpacing.md),
-                                  child: _buildTaskChip(task['title'] ?? 'Task'),
-                                )).toList(),
+                            children: tasks.isEmpty
+                                ? [_buildTaskChip('no_tasks'.tr(ref))]
+                                : tasks
+                                      .map(
+                                        (task) => Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: AppSpacing.md,
+                                          ),
+                                          child: _buildTaskChip(
+                                            task['title'] ?? 'Task',
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
                           ),
                         ),
                       ],
@@ -200,7 +245,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   // My Crop Card with overlap
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
                     child: Transform.translate(
                       offset: const Offset(0, -30),
                       child: _buildMyCropCard(context, activePlot, weather),
@@ -208,7 +255,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -244,10 +293,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(
-          color: AppColors.white,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.white, width: 1.5),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [AppColors.softShadow],
       ),
@@ -262,9 +308,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // My Crop Card with status
-  Widget _buildMyCropCard(BuildContext context, Plot? plot, Map<String, dynamic>? weather) {
+  Widget _buildMyCropCard(
+    BuildContext context,
+    Plot? plot,
+    Map<String, dynamic>? weather,
+  ) {
     if (plot == null) return const SizedBox.shrink();
-    
+
     final bool isAtRisk = plot.status == 'At Risk';
     final String humidity = weather?['humidity']?.toString() ?? 'Normal';
 
@@ -307,8 +357,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: () => context.push('/crop-registration/${plot.id}'),
-                      icon: const Icon(Icons.refresh, size: 14, color: AppColors.primaryGreen),
+                      onPressed: () =>
+                          context.push('/crop-registration/${plot.id}'),
+                      icon: const Icon(
+                        Icons.refresh,
+                        size: 14,
+                        color: AppColors.primaryGreen,
+                      ),
                       label: Text(
                         'Change Crop',
                         style: AppTextStyles.labelMedium.copyWith(
@@ -407,17 +462,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: isAtRisk ? AppColors.alertYellow : AppColors.lightGreen,
+                  color: isAtRisk
+                      ? AppColors.alertYellow
+                      : AppColors.lightGreen,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
+                    color: isAtRisk
+                        ? AppColors.warning
+                        : AppColors.primaryGreen,
                     width: 1.5,
                   ),
                 ),
                 child: Text(
                   plot.status,
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
+                    color: isAtRisk
+                        ? AppColors.warning
+                        : AppColors.primaryGreen,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -459,7 +520,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isAtRisk ? AppColors.alertYellow : AppColors.lightGreen.withOpacity(0.3),
+        color: isAtRisk
+            ? AppColors.alertYellow
+            : AppColors.lightGreen.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
@@ -487,7 +550,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  isAtRisk ? 'High risk alert detected' : 'Everything looks stable',
+                  isAtRisk
+                      ? 'High risk alert detected'
+                      : 'Everything looks stable',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -498,11 +563,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: (isAtRisk ? AppColors.warning : AppColors.primaryGreen).withOpacity(0.1),
+              color: (isAtRisk ? AppColors.warning : AppColors.primaryGreen)
+                  .withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isAtRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+              isAtRisk
+                  ? Icons.warning_amber_rounded
+                  : Icons.check_circle_outline,
               color: isAtRisk ? AppColors.warning : AppColors.primaryGreen,
               size: 32,
             ),
@@ -556,6 +624,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               label: 'Farm\nHistory',
               onTap: () => context.go('/profile/farm-history'),
             ),
+            _buildActionButton(
+              context,
+              icon: Icons.grass,
+              label: 'Jasmine Yield\nPrediction',
+              onTap: () => context.push('/ml/jasmine-yield'),
+            ),
+            _buildActionButton(
+              context,
+              icon: Icons.water_drop_outlined,
+              label: 'Smart\nIrrigation',
+              onTap: () => context.push('/ml/smart-irrigation'),
+            ),
           ],
         ),
       ],
@@ -586,11 +666,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 color: AppColors.lightGreen,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: AppColors.primaryGreen,
-                size: 28,
-              ),
+              child: Icon(icon, color: AppColors.primaryGreen, size: 28),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -629,9 +705,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         children: [
           Text(
             'farm_glance'.tr(ref),
-            style: AppTextStyles.headingSmall.copyWith(
-              color: AppColors.white,
-            ),
+            style: AppTextStyles.headingSmall.copyWith(color: AppColors.white),
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -684,10 +758,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   // Individual Glance Stat Item
-  Widget _buildGlanceStatItem({
-    required String label,
-    required String value,
-  }) {
+  Widget _buildGlanceStatItem({required String label, required String value}) {
     return Column(
       children: [
         Text(
@@ -710,7 +781,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  void _showPlotSwitcher(BuildContext context, WidgetRef ref, List<Plot> plots) {
+  void _showPlotSwitcher(
+    BuildContext context,
+    WidgetRef ref,
+    List<Plot> plots,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -725,21 +800,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             children: [
               Text(
                 'Select Active Plot',
-                style: AppTextStyles.headingSmall.copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.headingSmall.copyWith(
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 16),
-              ...plots.map((plot) => ListTile(
-                leading: const Icon(Icons.landscape, color: AppColors.primaryGreen),
-                title: Text(plot.surveyNo, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('${plot.cropName} (${plot.variety})'),
-                trailing: ref.watch(activePlotProvider)?.id == plot.id 
-                  ? const Icon(Icons.check_circle, color: AppColors.primaryGreen) 
-                  : null,
-                onTap: () {
-                  ref.read(activePlotProvider.notifier).setActivePlot(plot);
-                  Navigator.pop(context);
-                },
-              )),
+              ...plots.map(
+                (plot) => ListTile(
+                  leading: const Icon(
+                    Icons.landscape,
+                    color: AppColors.primaryGreen,
+                  ),
+                  title: Text(
+                    plot.surveyNo,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('${plot.cropName} (${plot.variety})'),
+                  trailing: ref.watch(activePlotProvider)?.id == plot.id
+                      ? const Icon(
+                          Icons.check_circle,
+                          color: AppColors.primaryGreen,
+                        )
+                      : null,
+                  onTap: () {
+                    ref.read(activePlotProvider.notifier).setActivePlot(plot);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
               const SizedBox(height: 20),
             ],
           ),

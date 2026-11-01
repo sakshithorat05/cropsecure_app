@@ -35,10 +35,17 @@ import '../screens/profile/farm_history_screen.dart';
 import '../screens/profile/purchase_inputs_screen.dart';
 import '../screens/profile/plot_registration_screen.dart';
 import '../screens/profile/crop_field_registration_screen.dart';
+import '../screens/ml/prediction_form_screen.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
-final GlobalKey<NavigatorState> _mainNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'main');
-final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'root',
+);
+final GlobalKey<NavigatorState> _mainNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'main',
+);
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'shell',
+);
 
 /// Provides the GoRouter instance
 final routerProvider = Provider<GoRouter>((ref) {
@@ -83,34 +90,40 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const FarmerRegistrationScreen(),
           ),
           GoRoute(
-             path: '/home/scan',
-             builder: (context, state) => const ScanScreen(),
-             routes: [
-               GoRoute(
-                 path: 'preview',
-                 builder: (context, state) => ScanPreviewScreen(
-                   imagePath: state.extra as String?,
-                 ),
-               ),
-               GoRoute(
-                 path: 'analyzing',
-                 builder: (context, state) => const AnalyzingScreen(),
-               ),
-               GoRoute(
-                 path: 'result',
-                 builder: (context, state) => const DiagnosisResultScreen(),
-               ),
-             ],
+            path: '/home/scan',
+            builder: (context, state) => const ScanScreen(),
+            routes: [
+              GoRoute(
+                path: 'preview',
+                builder: (context, state) =>
+                    ScanPreviewScreen(imagePath: state.extra as String?),
+              ),
+              GoRoute(
+                path: 'analyzing',
+                builder: (context, state) => const AnalyzingScreen(),
+              ),
+              GoRoute(
+                path: 'result',
+                builder: (context, state) => const DiagnosisResultScreen(),
+              ),
+            ],
           ),
           GoRoute(
-             path: '/scan-result',
-             builder: (context, state) => const DiagnosisResultScreen(),
+            path: '/scan-result',
+            builder: (context, state) => const DiagnosisResultScreen(),
           ),
           GoRoute(
-             path: '/disease-details',
-             builder: (context, state) => DiseaseDetailsScreen(
-               data: state.extra as DiseaseDetailsModel,
-             ),
+            path: '/disease-details',
+            builder: (context, state) =>
+                DiseaseDetailsScreen(data: state.extra as DiseaseDetailsModel),
+          ),
+          GoRoute(
+            path: '/ml/jasmine-yield',
+            builder: (context, state) => const JasmineYieldScreen(),
+          ),
+          GoRoute(
+            path: '/ml/smart-irrigation',
+            builder: (context, state) => const SmartIrrigationScreen(),
           ),
 
           // Nested App Shell with Bottom Navigation
@@ -125,7 +138,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/home',
                 builder: (context, state) => const DashboardScreen(),
               ),
-              
+
               // 1. Treatment
               GoRoute(
                 path: '/treatment',
@@ -190,13 +203,20 @@ final routerProvider = Provider<GoRouter>((ref) {
                     pageBuilder: (context, state) => CustomTransitionPage<void>(
                       key: state.pageKey,
                       child: const SearchOverlayScreen(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(0.0, -1.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(0.0, -1.0);
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            var tween = Tween(
+                              begin: begin,
+                              end: end,
+                            ).chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
                     ),
                   ),
                   GoRoute(
@@ -211,7 +231,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                 ],
               ),
-              
+
               // 3. Profile
               GoRoute(
                 path: '/profile',

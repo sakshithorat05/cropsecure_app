@@ -27,6 +27,10 @@ class CloudinaryService {
   /// Upload image to Cloudinary
   /// Returns the secure URL of uploaded image
   Future<String> uploadImage(File imageFile, {String folder = 'cropsecure'}) async {
+    return uploadImagePath(imageFile.path, folder: folder);
+  }
+
+  Future<String> uploadImagePath(String imagePath, {String folder = 'cropsecure'}) async {
     try {
       final uri = Uri.parse('https://api.cloudinary.com/v1_1/$_cloudName/image/upload');
 
@@ -35,7 +39,7 @@ class CloudinaryService {
       request.fields['folder'] = folder;
 
       request.files.add(
-        await http.MultipartFile.fromPath('file', imageFile.path),
+        await http.MultipartFile.fromPath('file', imagePath),
       );
 
       final response = await request.send();
