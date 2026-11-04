@@ -626,15 +626,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             _buildActionButton(
               context,
-              icon: Icons.grass,
-              label: 'Jasmine Yield\nPrediction',
+              icon: Icons.auto_graph_rounded,
+              label: 'Yield\nPrediction',
               onTap: () => context.push('/ml/jasmine-yield'),
+              isAi: true,
+              iconColor: const Color(0xFF2E7D32),
+              bgColor: const Color(0xFFE8F5E9),
             ),
             _buildActionButton(
               context,
-              icon: Icons.water_drop_outlined,
+              icon: Icons.water_drop_rounded,
               label: 'Smart\nIrrigation',
               onTap: () => context.push('/ml/smart-irrigation'),
+              isAi: true,
+              iconColor: const Color(0xFF0284C7),
+              bgColor: const Color(0xFFE0F2FE),
             ),
           ],
         ),
@@ -648,6 +654,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    bool isAi = false,
+    Color? iconColor,
+    Color? bgColor,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -657,25 +666,53 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [AppColors.softShadow],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: const BoxDecoration(
-                color: AppColors.lightGreen,
-                shape: BoxShape.circle,
+            if (isAi)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2E7D32), Color(0xFF0284C7)],
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'AI',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-              child: Icon(icon, color: AppColors.primaryGreen, size: 28),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: bgColor ?? AppColors.lightGreen,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: iconColor ?? AppColors.primaryGreen, size: 28),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

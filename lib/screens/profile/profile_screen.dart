@@ -154,6 +154,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: Column(
                       children: [
                         _buildSettingTile(
+                          icon: Icons.auto_graph_rounded,
+                          title: 'Jasmine Yield Predictor (AI)',
+                          onTap: () => context.push('/ml/jasmine-yield'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.water_drop_rounded,
+                          title: 'Smart Irrigation Advisory (AI)',
+                          onTap: () => context.push('/ml/smart-irrigation'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
                           icon: Icons.history,
                           title: 'Farm History',
                           onTap: () => context.push('/profile/farm-history'),
