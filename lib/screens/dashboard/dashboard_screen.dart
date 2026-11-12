@@ -642,6 +642,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               iconColor: const Color(0xFF0284C7),
               bgColor: const Color(0xFFE0F2FE),
             ),
+            _buildActionButton(
+              context,
+              icon: Icons.insights_outlined,
+              label: 'Market Demand\nInsights',
+              onTap: () => context.push('/ml/market-insights'),
+            ),
           ],
         ),
       ],

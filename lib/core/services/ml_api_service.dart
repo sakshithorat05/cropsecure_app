@@ -37,4 +37,8 @@ class MlApiService {
   Future<Map<String, dynamic>> predictSmartIrrigationAmount(
     Map<String, dynamic> features,
   ) => _post('/predict/smart-irrigation-amount', features);
+
+  Future<Map<String, dynamic>> predictMarketInsights(
+    Map<String, dynamic> features,
+  ) => _post('/predict/market-insights', features);
 }

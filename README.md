@@ -41,6 +41,7 @@ Available endpoints:
 - `POST /predict/jasmine-yield`
 - `POST /predict/smart-irrigation`
 - `POST /predict/smart-irrigation-amount`
+- `POST /predict/market-insights`
 
 Both prediction endpoints accept `{ "features": { ... } }`. The Flutter forms
 send every required feature and validate numeric fields and trained categorical
@@ -50,6 +51,12 @@ contain human-readable class labels.
 
 The Smart Irrigation response also includes the recommended irrigation amount
 from `smart_irrigation_amount_regressor.joblib` in litres per plant.
+
+The Market Demand Insights screen uses the four market artifacts:
+`best_buyer_model_randomforest.joblib`, `best_risk_model_xgboost.joblib`,
+`best_demand_model_xgboost.joblib`, and `best_price_model_xgboost.joblib`.
+It returns buyer, demand, price, and numeric risk-class predictions using the
+models' embedded preprocessing.
 
 ### Resources
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)

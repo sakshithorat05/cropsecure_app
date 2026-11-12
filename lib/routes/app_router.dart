@@ -125,6 +125,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/ml/smart-irrigation',
             builder: (context, state) => const SmartIrrigationScreen(),
           ),
+          GoRoute(
+            path: '/ml/market-insights',
+            builder: (context, state) => const MarketInsightsScreen(),
+          ),
 
           // Nested App Shell with Bottom Navigation
           ShellRoute(
