@@ -22,6 +22,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final DatabaseService _db = DatabaseService();
   final UserSessionService _session = UserSessionService();
+  static Map<String, dynamic>? _cachedProfile;
   late Future<Map<String, dynamic>?> _profileFuture;
 
   @override
@@ -31,8 +32,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<Map<String, dynamic>?> _loadProfile() async {
-    final uid = await _session.getCurrentUserId();
-    return _db.getUserProfile(uid);
+    try {
+      final uid = await _session.getCurrentUserId();
+      final profile = await _db.getUserProfile(uid);
+      if (profile != null) {
+        _cachedProfile = profile;
+      }
+      return profile ?? _cachedProfile;
+    } catch (e) {
+      return _cachedProfile;
+    }
   }
 
   @override
@@ -42,9 +51,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>?>(
+        initialData: _cachedProfile,
         future: _profileFuture,
         builder: (context, snapshot) {
-          final userData = snapshot.data;
+          final userData = snapshot.data ?? _cachedProfile;
           final String fullName = userData?['name'] ?? 'Farmer';
           final String firstName = fullName.split(' ').first;
           final String userPhone = userData?['phone'] ?? '+91';
@@ -155,14 +165,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         _buildSettingTile(
                           icon: Icons.auto_graph_rounded,
-                          title: 'Jasmine Yield Predictor (AI)',
+                          title: 'Jasmine Yield Predictor',
                           onTap: () => context.push('/ml/jasmine-yield'),
                         ),
                         _buildDivider(),
                         _buildSettingTile(
                           icon: Icons.water_drop_rounded,
-                          title: 'Smart Irrigation Advisory (AI)',
+                          title: 'Smart Irrigation Advisory',
                           onTap: () => context.push('/ml/smart-irrigation'),
+                        ),
+                        _buildDivider(),
+                        _buildSettingTile(
+                          icon: Icons.insights_rounded,
+                          title: 'Market Demand & Price Insights',
+                          onTap: () => context.push('/ml/market-insights'),
                         ),
                         _buildDivider(),
                         _buildSettingTile(

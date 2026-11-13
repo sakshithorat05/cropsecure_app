@@ -36,6 +36,9 @@ import '../screens/profile/purchase_inputs_screen.dart';
 import '../screens/profile/plot_registration_screen.dart';
 import '../screens/profile/crop_field_registration_screen.dart';
 import '../screens/ml/prediction_form_screen.dart';
+import '../screens/ml/jasmine_yield_screen.dart';
+import '../screens/ml/smart_irrigation_screen.dart';
+import '../screens/ml/market_insights_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',

@@ -203,17 +203,33 @@ final List<Plot> mockPlots = [
 class PlotsNotifier extends AsyncNotifier<List<Plot>> {
   final DatabaseService _db = DatabaseService();
   final UserSessionService _session = UserSessionService();
+  static List<Plot>? _cachedPlots;
 
   @override
   Future<List<Plot>> build() async {
-    final uid = await _session.getCurrentUserId();
-    return _db.getUserPlots(uid);
+    try {
+      final uid = await _session.getCurrentUserId();
+      final plots = await _db.getUserPlots(uid);
+      if (plots.isNotEmpty) {
+        _cachedPlots = plots;
+      }
+      return plots.isNotEmpty ? plots : (_cachedPlots ?? mockPlots);
+    } catch (e) {
+      return _cachedPlots ?? mockPlots;
+    }
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading();
-    final uid = await _session.getCurrentUserId();
-    state = await AsyncValue.guard(() => _db.getUserPlots(uid));
+    try {
+      final uid = await _session.getCurrentUserId();
+      final plots = await _db.getUserPlots(uid);
+      if (plots.isNotEmpty) {
+        _cachedPlots = plots;
+      }
+      state = AsyncData(plots.isNotEmpty ? plots : (_cachedPlots ?? mockPlots));
+    } catch (e) {
+      state = AsyncData(_cachedPlots ?? mockPlots);
+    }
   }
 
   Future<void> addPlot(Plot plot) async {
@@ -246,9 +262,9 @@ class ActivePlotNotifier extends Notifier<Plot?> {
   Plot? build() {
     final plotsAsync = ref.watch(plotsProvider);
     return plotsAsync.when(
-      data: (plots) => plots.isNotEmpty ? plots.first : null,
-      loading: () => null,
-      error: (_, __) => null,
+      data: (plots) => plots.isNotEmpty ? (state ?? plots.first) : state,
+      loading: () => state,
+      error: (_, __) => state,
     );
   }
 

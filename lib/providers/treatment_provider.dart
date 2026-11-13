@@ -4,6 +4,7 @@ import '../screens/treatment/models/treatment_advisory_model.dart';
 
 class TreatmentProvider with ChangeNotifier {
   final TreatmentApiService _apiService;
+  static final Map<String, TreatmentAdvisoryData> _cache = {};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -16,17 +17,27 @@ class TreatmentProvider with ChangeNotifier {
 
   TreatmentProvider({TreatmentApiService? apiService, String? cropName}) 
       : _apiService = apiService ?? TreatmentApiService() {
+    final cacheKey = cropName?.trim().toLowerCase() ?? 'default';
+    if (_cache.containsKey(cacheKey)) {
+      _advisoryData = _cache[cacheKey];
+      _isLoading = false;
+    }
     _loadInitialData(cropName);
   }
 
   Future<void> _loadInitialData(String? cropName) async {
-    _isLoading = true;
+    final cacheKey = cropName?.trim().toLowerCase() ?? 'default';
+    if (_advisoryData == null) {
+      _isLoading = true;
+      notifyListeners();
+    }
     _errorMessage = null;
-    notifyListeners();
 
     try {
       debugPrint('Fetching treatment advisory for crop: $cropName');
-      _advisoryData = await _apiService.fetchTreatmentAdvisory(cropName: cropName);
+      final data = await _apiService.fetchTreatmentAdvisory(cropName: cropName);
+      _advisoryData = data;
+      _cache[cacheKey] = data;
       _errorMessage = null;
     } catch (e) {
       debugPrint('Error loading advisory: $e');
@@ -35,8 +46,12 @@ class TreatmentProvider with ChangeNotifier {
         _advisoryData = null;
         _errorMessage = null;
       } else {
-        _errorMessage = 'Failed to load treatment advisory: $e';
-        _advisoryData = null;
+        if (_cache.containsKey(cacheKey)) {
+          _advisoryData = _cache[cacheKey];
+          _errorMessage = null;
+        } else {
+          _errorMessage = 'Failed to load treatment advisory: $e';
+        }
       }
     } finally {
       _isLoading = false;

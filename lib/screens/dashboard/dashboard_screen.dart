@@ -19,6 +19,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final DatabaseService _db = DatabaseService();
   final UserSessionService _session = UserSessionService();
+  static Map<String, dynamic>? _cachedDashboardData;
   late Future<Map<String, dynamic>> _dashboardDataFuture;
 
   @override
@@ -28,17 +29,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<Map<String, dynamic>> _loadDashboardData() async {
-    final uid = await _session.getCurrentUserId();
-    final profile = await _db.getUserProfile(uid);
-    final stats = await _db.getDashboardStats(uid);
-    final tasks = await _db.getUserReminders(uid);
-    final weather = await _db.getLatestWeather();
-    return {
-      'name': profile?['name'] ?? 'Farmer',
-      'stats': stats,
-      'tasks': tasks,
-      'weather': weather,
-    };
+    try {
+      final uid = await _session.getCurrentUserId();
+      final profile = await _db.getUserProfile(uid);
+      final stats = await _db.getDashboardStats(uid);
+      final tasks = await _db.getUserReminders(uid);
+      final weather = await _db.getLatestWeather();
+      final data = {
+        'name': profile?['name'] ?? _cachedDashboardData?['name'] ?? 'Farmer',
+        'stats': stats,
+        'tasks': tasks,
+        'weather': weather ?? _cachedDashboardData?['weather'],
+      };
+      _cachedDashboardData = data;
+      return data;
+    } catch (e) {
+      if (_cachedDashboardData != null) {
+        return _cachedDashboardData!;
+      }
+      return {
+        'name': 'Farmer',
+        'stats': {
+          'totalScans': '0',
+          'diseasesDetected': '0',
+          'treatmentsApplied': '0',
+          'recoveryRate': '92%',
+        },
+        'tasks': <Map<String, dynamic>>[],
+        'weather': null,
+      };
+    }
   }
 
   @override
@@ -49,9 +69,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<Map<String, dynamic>>(
+        initialData: _cachedDashboardData,
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
-          final data = snapshot.data;
+          final data = snapshot.data ?? _cachedDashboardData;
           final String fullName = data?['name'] ?? 'Farmer';
           final String firstName = fullName.split(' ').first;
           final List<Map<String, dynamic>> tasks =
@@ -629,7 +650,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               icon: Icons.auto_graph_rounded,
               label: 'Yield\nPrediction',
               onTap: () => context.push('/ml/jasmine-yield'),
-              isAi: true,
               iconColor: const Color(0xFF2E7D32),
               bgColor: const Color(0xFFE8F5E9),
             ),
@@ -638,15 +658,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               icon: Icons.water_drop_rounded,
               label: 'Smart\nIrrigation',
               onTap: () => context.push('/ml/smart-irrigation'),
-              isAi: true,
               iconColor: const Color(0xFF0284C7),
               bgColor: const Color(0xFFE0F2FE),
             ),
             _buildActionButton(
               context,
-              icon: Icons.insights_outlined,
+              icon: Icons.insights_rounded,
               label: 'Market Demand\nInsights',
               onTap: () => context.push('/ml/market-insights'),
+              iconColor: const Color(0xFF7C3AED),
+              bgColor: const Color(0xFFEDE9FE),
             ),
           ],
         ),
@@ -660,7 +681,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
-    bool isAi = false,
     Color? iconColor,
     Color? bgColor,
   }) {
@@ -672,53 +692,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [AppColors.softShadow],
         ),
-        child: Stack(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isAi)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF2E7D32), Color(0xFF0284C7)],
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'AI',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: bgColor ?? AppColors.lightGreen,
+                shape: BoxShape.circle,
               ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: bgColor ?? AppColors.lightGreen,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: iconColor ?? AppColors.primaryGreen, size: 28),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.textPrimary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              child: Icon(icon, color: iconColor ?? AppColors.primaryGreen, size: 28),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

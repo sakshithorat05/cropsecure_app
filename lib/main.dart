@@ -60,8 +60,8 @@ class CropSecureApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'CropSecure',
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      darkTheme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       // Adding locale support
       locale: Locale(ref.watch(localeProvider)),

@@ -538,7 +538,7 @@ class _JasmineYieldScreenState extends ConsumerState<JasmineYieldScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'AI Harvest Forecaster',
+                  'Harvest Forecaster',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -903,7 +903,7 @@ class _JasmineYieldScreenState extends ConsumerState<JasmineYieldScreen> {
           ),
           const SizedBox(height: 16),
 
-          // AI Agronomic Advice
+          // Agronomic Advice
           const Text(
             'Agronomic Recommendations:',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),

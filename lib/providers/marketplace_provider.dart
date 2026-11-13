@@ -52,17 +52,26 @@ class MarketplaceNotifier extends Notifier<MarketplaceState> {
   }
 
   Future<void> loadProducts() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.allProducts.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final products = await _db.getAllProducts();
-      
-      state = state.copyWith(
-        isLoading: false,
-        allProducts: products,
-      );
-      _applyFilters();
+      if (products.isNotEmpty || state.allProducts.isEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          allProducts: products,
+        );
+        _applyFilters();
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      if (state.allProducts.isNotEmpty) {
+        state = state.copyWith(isLoading: false);
+      } else {
+        state = state.copyWith(isLoading: false, error: e.toString());
+      }
     }
   }
 

@@ -7,11 +7,21 @@ class MongoDBService {
   MongoDBService._internal();
 
   mongo.Db? _db;
-  bool _isConnected = false;
   Future<void>? _connecting;
 
+  /// True only if DB instance exists and is actively open and connected.
+  bool get isConnected {
+    final db = _db;
+    if (db == null) return false;
+    try {
+      return db.isConnected && db.state == mongo.State.open;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> connect() async {
-    if (_isConnected && _db != null) return;
+    if (isConnected) return;
 
     if (_connecting != null) {
       return _connecting!;
@@ -25,50 +35,68 @@ class MongoDBService {
     }
   }
 
+  /// Force-closes any stale/broken connection and opens a clean new socket.
+  Future<void> reconnect() async {
+    try {
+      await _db?.close();
+    } catch (_) {}
+    _db = null;
+    await connect();
+  }
+
   Future<void> _connectInternal() async {
-    if (_isConnected && _db != null) return;
+    if (isConnected) return;
 
     try {
       final url = dotenv.env['MONGODB_URL'] ?? '';
       if (url.trim().isEmpty) {
         throw Exception('MONGODB_URL is missing from .env');
       }
-      _db = await mongo.Db.create(url);
-      await _db!.open();
-      _isConnected = true;
+
+      if (_db != null) {
+        try {
+          await _db!.close();
+        } catch (_) {}
+        _db = null;
+      }
+
+      final newDb = await mongo.Db.create(url);
+      // Bound the connection attempt so poor connectivity never hangs the app
+      await newDb.open().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          try {
+            newDb.close();
+          } catch (_) {}
+          throw Exception('MongoDB connection attempt timed out after 8s');
+        },
+      );
+
+      _db = newDb;
       print('--- Connected to MongoDB Atlas ---');
     } catch (e) {
       _db = null;
-      _isConnected = false;
       print('--- MongoDB Connection Error: $e ---');
       rethrow;
     }
   }
 
-  /// Ensure the DB is connected and open. Call this before using collections.
+  /// Ensure the DB is connected and open. Auto-reconnects if the socket dropped.
   Future<void> ensureConnected() async {
-    if (_isConnected && _db != null) return;
+    if (isConnected) return;
     await connect();
   }
 
   mongo.DbCollection getCollection(String name) {
-    if (_db == null) {
-      throw Exception('MongoDB not connected. Call await MongoDBService().connect() or ensureConnected() before using collections.');
+    final db = _db;
+    if (db == null || !isConnected) {
+      throw Exception('MongoDB is not currently open. Call ensureConnected() first.');
     }
-
-    // If the underlying Db hasn't finished opening, give a clear error instead
-    // of letting mongo_dart throw a low-level state error. We rely on
-    // `_isConnected` which is set to true after a successful `open()`.
-    if (!_isConnected) {
-      throw Exception('MongoDB not open. Call await MongoDBService().connect() or ensureConnected() before using collections.');
-    }
-
-    return _db!.collection(name);
+    return db.collection(name);
   }
 
   Future<void> close() async {
     await _db?.close();
     _db = null;
-    _isConnected = false;
   }
 }

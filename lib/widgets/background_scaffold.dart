@@ -16,8 +16,6 @@ class BackgroundScaffold extends StatelessWidget {
           ),
         ),
         // The Screen Content
-        // We use a Scaffold here (if needed) or just the child.
-        // If the child is already a Scaffold, we rely on its background being transparent.
         child,
       ],
     );
