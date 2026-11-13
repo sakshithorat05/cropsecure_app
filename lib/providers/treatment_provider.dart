@@ -21,15 +21,17 @@ class TreatmentProvider with ChangeNotifier {
     if (_cache.containsKey(cacheKey)) {
       _advisoryData = _cache[cacheKey];
       _isLoading = false;
+    } else {
+      _isLoading = true;
     }
-    _loadInitialData(cropName);
+    _loadInitialData(cropName, isInitial: true);
   }
 
-  Future<void> _loadInitialData(String? cropName) async {
+  Future<void> _loadInitialData(String? cropName, {bool isInitial = false}) async {
     final cacheKey = cropName?.trim().toLowerCase() ?? 'default';
-    if (_advisoryData == null) {
+    if (!isInitial && _advisoryData == null) {
       _isLoading = true;
-      notifyListeners();
+      if (hasListeners) notifyListeners();
     }
     _errorMessage = null;
 
@@ -55,7 +57,7 @@ class TreatmentProvider with ChangeNotifier {
       }
     } finally {
       _isLoading = false;
-      notifyListeners();
+      if (hasListeners) notifyListeners();
     }
   }
 

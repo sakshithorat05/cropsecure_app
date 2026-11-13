@@ -204,6 +204,7 @@ class PlotsNotifier extends AsyncNotifier<List<Plot>> {
   final DatabaseService _db = DatabaseService();
   final UserSessionService _session = UserSessionService();
   static List<Plot>? _cachedPlots;
+  static List<Plot>? get cachedPlots => _cachedPlots;
 
   @override
   Future<List<Plot>> build() async {
@@ -233,22 +234,31 @@ class PlotsNotifier extends AsyncNotifier<List<Plot>> {
   }
 
   Future<void> addPlot(Plot plot) async {
-    state = const AsyncLoading();
+    final List<Plot> current = state.asData?.value ?? _cachedPlots ?? mockPlots;
+    final List<Plot> updated = <Plot>[...current, plot];
+    _cachedPlots = updated;
+    state = AsyncData(updated);
     try {
       await _db.addPlot(plot);
       await refresh();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (e) {
+      print('PlotsNotifier: remote addPlot failed: $e');
     }
   }
 
   Future<void> updatePlot(Plot plot) async {
-    state = const AsyncLoading();
+    final List<Plot> current = state.asData?.value ?? _cachedPlots ?? mockPlots;
+    final List<Plot> updated = <Plot>[
+      for (final p in current)
+        if (p.id == plot.id) plot else p
+    ];
+    _cachedPlots = updated;
+    state = AsyncData(updated);
     try {
       await _db.updatePlot(plot);
       await refresh();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+    } catch (e) {
+      print('PlotsNotifier: remote updatePlot failed: $e');
     }
   }
 }
@@ -258,17 +268,27 @@ final plotsProvider = AsyncNotifierProvider<PlotsNotifier, List<Plot>>(() {
 });
 
 class ActivePlotNotifier extends Notifier<Plot?> {
+  Plot? _selectedPlot;
+
   @override
   Plot? build() {
     final plotsAsync = ref.watch(plotsProvider);
-    return plotsAsync.when(
-      data: (plots) => plots.isNotEmpty ? (state ?? plots.first) : state,
-      loading: () => state,
-      error: (_, __) => state,
-    );
+    final List<Plot> availablePlots =
+        plotsAsync.asData?.value ?? PlotsNotifier.cachedPlots ?? mockPlots;
+
+    if (_selectedPlot != null) {
+      for (final p in availablePlots) {
+        if (p.id == _selectedPlot!.id) {
+          return p;
+        }
+      }
+      return _selectedPlot;
+    }
+    return availablePlots.isNotEmpty ? availablePlots.first : null;
   }
 
   void setActivePlot(Plot plot) {
+    _selectedPlot = plot;
     state = plot;
   }
 }
