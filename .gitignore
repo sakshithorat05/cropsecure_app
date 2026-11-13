@@ -55,3 +55,5 @@ app.*.symbols
 app.*.map.json
 
 .venv/
+
+best_buyer_model_randomforest.joblib
